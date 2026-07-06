@@ -1,633 +1,865 @@
 <!DOCTYPE html>
 <html lang="ar">
 <head>
-  <meta charset="UTF-8"/>
+  <meta charset="utf-8"/>
   <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-  <meta content="StreamFlix - Premium Entertainment Portal" name="description"/>
-  <title>StreamFlix - Premium Entertainment Portal</title>
+  <meta content="IE=edge" http-equiv="X-UA-Compatible"/>
+
+  <title>GameHub | Your Gaming News Source</title>
+
+  <meta content="Your source for the latest gaming news, reviews, and eSports coverage." name="description"/>
+
+  <link href="/" rel="canonical"/>
+
+  <!-- Open Graph -->
+  <meta content="GameHub" property="og:site_name"/>
+  <meta content="website" property="og:type"/>
+  <meta content="GameHub - Your Gaming News Source" property="og:title"/>
+
+  <!-- Twitter Cards -->
+  <meta content="summary_large_image" name="twitter:card"/>
+  <meta content="GameHub" name="twitter:site"/>
+
+  <!-- Preconnect -->
+  <link href="https://fonts.googleapis.com" rel="preconnect"/>
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&amp;family=Rajdhani:wght@300;400;500;600;700&amp;family=Inter:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
 
   <style>
     :root {
-      --bg-primary: #000000;
-      --bg-secondary: #141414;
-      --bg-card: #1a1a1a;
-      --bg-hover: #2a2a2a;
-      --accent-red: #e50914;
-      --accent-red-hover: #b20710;
-      --accent-gold: #f5c518;
-      --text-primary: #ffffff;
-      --text-secondary: #b3b3b3;
-      --text-muted: #737373;
-      --border-color: #333333;
-      --gradient-overlay: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.1) 100%);
-      --shadow-card: 0 4px 20px rgba(0,0,0,0.5);
-      --shadow-hover: 0 8px 30px rgba(229,9,20,0.3);
-      --transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-      --radius-sm: 4px;
-      --radius-md: 8px;
-      --radius-lg: 12px;
+      --neon-pink: #FF4D94;
+      --sunset-orange: #FF8C42;
+      --twilight-purple: #4A148C;
+      --cyan-teal: #00CED1;
+      --matte-black: #0A0A0A;
+      --bg-primary: #1A1A2E;
+      --bg-secondary: #16213E;
+      --bg-card: #1A1A3E;
+      --bg-card-hover: #2A2A4E;
+      --white: #FFFFFF;
+      --text-muted: rgba(255,255,255,0.5);
+      --text-secondary: rgba(255,255,255,0.7);
+      --border-color: rgba(255,255,255,0.08);
+      --shadow-neon-pink: 0 0 20px rgba(255,77,148,0.3);
+      --shadow-cyan: 0 0 20px rgba(0,206,209,0.3);
+      --font-orbitron: 'Orbitron', monospace;
+      --font-rajdhani: 'Rajdhani', sans-serif;
+      --font-inter: 'Inter', sans-serif;
+      --transition: 0.3s cubic-bezier(0.4,0,0.2,1);
+      --radius: 12px;
+      --max-width: 1280px;
+      --gutter: 1.5rem;
     }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; scroll-behavior: smooth; }
     body {
-      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-      background-color: var(--bg-primary);
-      color: var(--text-primary);
+      background: var(--bg-primary);
+      background-image: radial-gradient(circle at 10% 20%, rgba(255,77,148,0.08) 0%, transparent 50%), radial-gradient(circle at 90% 80%, rgba(74,20,140,0.08) 0%, transparent 50%), radial-gradient(circle at 50% 50%, rgba(0,206,209,0.03) 0%, transparent 70%);
+      color: var(--text-secondary);
+      font-family: var(--font-rajdhani);
+      font-weight: 400;
       line-height: 1.6;
-      overflow-x: hidden;
       -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
     }
-    a { text-decoration: none; color: inherit; transition: var(--transition); }
     img { max-width: 100%; height: auto; display: block; }
-    ::-webkit-scrollbar { width: 8px; height: 8px; }
-    ::-webkit-scrollbar-track { background: var(--bg-primary); }
-    ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
-    ::-webkit-scrollbar-thumb:hover { background: var(--accent-red); }
+    a { color: inherit; text-decoration: none; transition: color var(--transition); }
+    ul, ol { list-style: none; }
+    button { border: none; background: none; cursor: pointer; font-family: inherit; }
 
-    .header {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
-      background: linear-gradient(to bottom, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.6) 60%, transparent 100%);
-      padding: 0 4%; height: 68px; display: flex; align-items: center; justify-content: space-between;
-      transition: background 0.4s ease;
-    }
-    .header.scrolled { background: rgba(0,0,0,0.95); backdrop-filter: blur(10px); box-shadow: 0 2px 20px rgba(0,0,0,0.5); }
-    .logo { font-size: 28px; font-weight: 900; color: var(--accent-red); letter-spacing: -1px; text-transform: uppercase; }
-    .logo span { color: var(--text-primary); }
-    .nav-links { display: flex; gap: 24px; align-items: center; }
-    .nav-links a { font-size: 14px; font-weight: 500; color: var(--text-secondary); text-transform: capitalize; position: relative; }
-    .nav-links a:hover { color: var(--text-primary); }
-    .nav-links a::after { content: ''; position: absolute; bottom: -4px; left: 0; width: 0; height: 2px; background: var(--accent-red); transition: width 0.3s ease; }
-    .nav-links a:hover::after { width: 100%; }
-    .search-container { position: relative; display: flex; align-items: center; }
-    .search-input {
-      background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 4px;
-      padding: 8px 36px 8px 12px; color: var(--text-primary); font-size: 14px; width: 240px;
-      transition: var(--transition); outline: none;
-    }
-    .search-input:focus { background: rgba(255,255,255,0.15); border-color: var(--accent-red); width: 300px; }
-    .search-input::placeholder { color: var(--text-muted); }
-    .search-btn { position: absolute; right: 8px; background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 16px; }
-    .menu-toggle { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 5px; }
-    .menu-toggle span { width: 24px; height: 2px; background: var(--text-primary); transition: var(--transition); }
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg-secondary); }
+    ::-webkit-scrollbar-thumb { background: var(--neon-pink); border-radius: 4px; }
 
-    .hero-banner { position: relative; width: 100%; height: 85vh; min-height: 600px; overflow: hidden; display: flex; align-items: flex-end; }
-    .hero-backdrop { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1; }
-    .hero-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--gradient-overlay); z-index: 2; }
-    .hero-content { position: relative; z-index: 3; padding: 0 4% 80px; max-width: 800px; animation: fadeInUp 0.8s ease-out; }
-    .hero-badge {
-      display: inline-block; background: var(--accent-red); color: var(--text-primary); padding: 4px 12px;
-      border-radius: var(--radius-sm); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px;
-    }
-    .hero-title { font-size: 56px; font-weight: 900; line-height: 1.1; margin-bottom: 16px; text-shadow: 2px 2px 20px rgba(0,0,0,0.8); }
-    .hero-meta { display: flex; gap: 16px; align-items: center; margin-bottom: 20px; font-size: 14px; color: var(--text-secondary); }
-    .hero-meta .rating { color: var(--accent-gold); font-weight: 700; }
-    .hero-description { font-size: 18px; line-height: 1.6; color: var(--text-secondary); margin-bottom: 28px; max-width: 600px; }
-    .hero-buttons { display: flex; gap: 12px; flex-wrap: wrap; }
-    .btn {
-      display: inline-flex; align-items: center; gap: 8px; padding: 12px 28px; border-radius: var(--radius-sm);
-      font-size: 16px; font-weight: 700; cursor: pointer; transition: var(--transition); border: none; outline: none;
-    }
-    .btn-primary { background: var(--accent-red); color: var(--text-primary); }
-    .btn-primary:hover { background: var(--accent-red-hover); transform: translateY(-2px); box-shadow: var(--shadow-hover); }
-    .btn-secondary { background: rgba(255,255,255,0.15); color: var(--text-primary); backdrop-filter: blur(10px); }
-    .btn-secondary:hover { background: rgba(255,255,255,0.25); transform: translateY(-2px); }
-    .btn-icon { font-size: 20px; }
+    .container { max-width: var(--max-width); margin: 0 auto; padding: 0 var(--gutter); }
 
-    .content-section { padding: 40px 4%; position: relative; }
-    .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-    .section-title { font-size: 22px; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 10px; }
-    .section-title .icon { color: var(--accent-red); font-size: 24px; }
-    .see-all { font-size: 14px; color: var(--accent-red); font-weight: 600; display: flex; align-items: center; gap: 4px; }
-    .see-all:hover { color: var(--accent-red-hover); gap: 8px; }
+    .hero-section { background: linear-gradient(135deg, var(--twilight-purple), var(--bg-primary)); padding: 80px 20px 60px; color: #ffffff; border-bottom: 4px solid var(--neon-pink); position: relative; overflow: hidden; }
+    .hero-section::before { content: ''; position: absolute; top: -50%; right: -20%; width: 60%; height: 200%; background: radial-gradient(circle, rgba(255,77,148,0.1) 0%, transparent 70%); pointer-events: none; }
+    .hero-title { color: var(--neon-pink); font-family: var(--font-inter); font-weight: 800; text-transform: uppercase; text-shadow: 0 0 10px rgba(255,77,148,0.5); }
+    .cta-button { background-color: var(--sunset-orange); color: var(--matte-black); padding: 12px 24px; border-radius: 4px; font-weight: bold; transition: 0.3s; display: inline-block; border: none; cursor: pointer; }
+    .cta-button:hover { background-color: var(--cyan-teal); box-shadow: 0 0 20px var(--cyan-teal); }
 
-    .carousel-container { position: relative; overflow: hidden; }
-    .carousel { display: flex; gap: 16px; overflow-x: auto; scroll-behavior: smooth; scroll-snap-type: x mandatory; padding: 10px 0 20px; -webkit-overflow-scrolling: touch; }
-    .carousel::-webkit-scrollbar { display: none; }
-    .carousel-item { flex: 0 0 auto; width: 200px; scroll-snap-align: start; position: relative; border-radius: var(--radius-md); overflow: hidden; cursor: pointer; transition: var(--transition); }
-    .carousel-item:hover { transform: scale(1.08); z-index: 10; box-shadow: var(--shadow-hover); }
-    .carousel-item .poster { width: 100%; aspect-ratio: 2/3; object-fit: cover; border-radius: var(--radius-md); }
-    .carousel-item .item-info {
-      position: absolute; bottom: 0; left: 0; right: 0; padding: 60px 12px 12px;
-      background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.6) 50%, transparent 100%);
-      opacity: 0; transition: opacity 0.3s ease;
-    }
-    .carousel-item:hover .item-info { opacity: 1; }
-    .carousel-item .item-title { font-size: 14px; font-weight: 700; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .carousel-item .item-meta { font-size: 12px; color: var(--text-secondary); display: flex; gap: 8px; align-items: center; }
-    .carousel-item .item-rating { color: var(--accent-gold); font-weight: 700; }
-    .carousel-nav {
-      position: absolute; top: 50%; transform: translateY(-50%); width: 48px; height: 48px;
-      background: rgba(0,0,0,0.7); border: 2px solid rgba(255,255,255,0.3); border-radius: 50%;
-      color: var(--text-primary); font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center;
-      transition: var(--transition); z-index: 5; opacity: 0;
-    }
-    .carousel-container:hover .carousel-nav { opacity: 1; }
-    .carousel-nav:hover { background: var(--accent-red); border-color: var(--accent-red); }
-    .carousel-nav.prev { left: 10px; }
-    .carousel-nav.next { right: 10px; }
+    .neon-text-pink { color: var(--neon-pink); text-shadow: 0 0 10px rgba(255,77,148,0.8), 0 0 20px rgba(255,77,148,0.6), 0 0 30px rgba(255,77,148,0.4); }
+    .neon-text-orange { color: var(--sunset-orange); text-shadow: 0 0 10px rgba(255,140,66,0.8), 0 0 20px rgba(255,140,66,0.6); }
+    .neon-text-cyan { color: var(--cyan-teal); text-shadow: 0 0 10px rgba(0,206,209,0.8), 0 0 20px rgba(0,206,209,0.6); }
+    .neon-text-purple { color: var(--twilight-purple); text-shadow: 0 0 10px rgba(74,20,140,0.8), 0 0 20px rgba(74,20,140,0.6); }
+    .neon-gradient-text { background: linear-gradient(135deg, var(--neon-pink), var(--twilight-purple), var(--cyan-teal)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
 
-    .news-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px; }
-    .news-card { background: var(--bg-card); border-radius: var(--radius-lg); overflow: hidden; transition: var(--transition); border: 1px solid var(--border-color); }
-    .news-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-card); border-color: var(--accent-red); }
-    .news-image { width: 100%; height: 180px; object-fit: cover; }
-    .news-content { padding: 20px; }
-    .news-tag {
-      display: inline-block; background: rgba(229,9,20,0.2); color: var(--accent-red); padding: 4px 10px;
-      border-radius: var(--radius-sm); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px;
-    }
-    .news-title { font-size: 16px; font-weight: 700; line-height: 1.4; margin-bottom: 10px; color: var(--text-primary); }
-    .news-title:hover { color: var(--accent-red); }
-    .news-excerpt {
-      font-size: 14px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 16px;
-      display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
-    }
-    .news-meta { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--text-muted); }
-    .news-meta .author { display: flex; align-items: center; gap: 6px; }
-    .news-meta .date { display: flex; align-items: center; gap: 4px; }
+    .badge { display: inline-block; padding: 0.15rem 0.8rem; border-radius: 20px; font-family: var(--font-orbitron); font-size: 0.55rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; background: linear-gradient(135deg, var(--neon-pink), var(--twilight-purple)); color: #fff; }
+    .badge--orange { background: var(--sunset-orange); color: var(--matte-black); }
+    .badge--cyan { background: var(--cyan-teal); color: var(--matte-black); }
+    .badge--outline { background: transparent; border: 1px solid var(--neon-pink); color: var(--neon-pink); }
 
-    .post-container { max-width: 1200px; margin: 0 auto; padding: 100px 4% 40px; }
-    .post-header { margin-bottom: 30px; }
-    .post-title { font-size: 36px; font-weight: 900; line-height: 1.2; margin-bottom: 16px; }
-    .post-meta { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; color: var(--text-secondary); font-size: 14px; }
-    .post-meta .imdb-rating {
-      display: flex; align-items: center; gap: 6px; background: var(--accent-gold); color: #000; padding: 4px 10px;
-      border-radius: var(--radius-sm); font-weight: 700;
-    }
-    .post-meta .genre-tag { background: var(--bg-card); padding: 4px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); }
-    .post-thumbnail { width: 100%; max-height: 500px; object-fit: cover; border-radius: var(--radius-lg); margin-bottom: 30px; box-shadow: var(--shadow-card); }
-    .post-content { font-size: 16px; line-height: 1.8; color: var(--text-secondary); }
-    .post-content p { margin-bottom: 20px; }
-    .post-content h2, .post-content h3 { color: var(--text-primary); margin: 30px 0 16px; }
+    .glow-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius); overflow: hidden; transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition); position: relative; }
+    .glow-card::before { content: ''; position: absolute; inset: -1px; background: linear-gradient(135deg, var(--neon-pink), var(--twilight-purple), var(--cyan-teal)); opacity: 0; border-radius: var(--radius); transition: opacity var(--transition); z-index: -1; }
+    .glow-card:hover { transform: translateY(-4px); border-color: rgba(255,77,148,0.3); box-shadow: var(--shadow-neon-pink); }
+    .glow-card:hover::before { opacity: 1; }
 
-    .server-buttons {
-      display: flex; gap: 12px; flex-wrap: wrap; margin: 30px 0; padding: 24px;
-      background: var(--bg-card); border-radius: var(--radius-lg); border: 1px solid var(--border-color);
-    }
-    .server-buttons .btn { padding: 14px 28px; font-size: 15px; }
-    .server-buttons .btn-server { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border: 1px solid var(--border-color); color: var(--text-primary); }
-    .server-buttons .btn-server:hover { border-color: var(--accent-red); box-shadow: 0 0 20px rgba(229,9,20,0.2); }
-    .server-buttons .btn-download { background: linear-gradient(135deg, var(--accent-red) 0%, #b20710 100%); color: var(--text-primary); }
-    .server-buttons .btn-download:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(229,9,20,0.4); }
+    .scanline { position: relative; overflow: hidden; }
+    .scanline::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.05) 2px, rgba(0,0,0,0.05) 4px); animation: scanline 8s linear infinite; }
+    @keyframes scanline { 0% { transform: translateY(-100%); } 100% { transform: translateY(100%); } }
 
-    .footer { background: var(--bg-secondary); border-top: 1px solid var(--border-color); padding: 60px 4% 30px; margin-top: 60px; }
-    .footer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 40px; margin-bottom: 40px; }
-    .footer-section h4 { font-size: 16px; font-weight: 700; margin-bottom: 20px; color: var(--text-primary); }
-    .footer-section ul { list-style: none; }
-    .footer-section ul li { margin-bottom: 12px; }
-    .footer-section ul li a { font-size: 14px; color: var(--text-secondary); transition: var(--transition); }
-    .footer-section ul li a:hover { color: var(--accent-red); padding-left: 4px; }
-    .footer-bottom { border-top: 1px solid var(--border-color); padding-top: 30px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; }
-    .footer-logo { font-size: 24px; font-weight: 900; color: var(--accent-red); }
-    .footer-logo span { color: var(--text-primary); }
-    .copyright { font-size: 13px; color: var(--text-muted); }
+    .glitch-wrapper { position: relative; }
+    .glitch-wrapper .glitch-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; mix-blend-mode: overlay; pointer-events: none; background: linear-gradient(135deg, var(--neon-pink), var(--cyan-teal)); }
+    .glitch-wrapper:hover .glitch-layer { animation: glitch 0.15s ease-in-out infinite; opacity: 0.2; }
+    @keyframes glitch { 0%,100% { transform: translate(0); } 20% { transform: translate(-2px,2px); } 40% { transform: translate(2px,-2px); } 60% { transform: translate(-1px,1px); } 80% { transform: translate(1px,-1px); } }
 
-    @media (max-width: 1024px) {
-      .hero-title { font-size: 42px; }
-      .nav-links { gap: 16px; }
-      .search-input { width: 180px; }
-      .search-input:focus { width: 220px; }
-    }
-    @media (max-width: 768px) {
-      .header { padding: 0 4%; height: 60px; }
-      .nav-links {
-        display: none; position: absolute; top: 60px; left: 0; right: 0; background: rgba(0,0,0,0.98);
-        flex-direction: column; padding: 20px; gap: 16px; border-top: 1px solid var(--border-color);
-      }
-      .nav-links.active { display: flex; }
-      .menu-toggle { display: flex; }
-      .search-container { display: none; }
-      .hero-banner { height: 70vh; min-height: 500px; }
-      .hero-title { font-size: 32px; }
-      .hero-description { font-size: 15px; }
-      .hero-buttons { flex-direction: column; }
-      .btn { width: 100%; justify-content: center; }
-      .carousel-item { width: 160px; }
-      .news-grid { grid-template-columns: 1fr; }
-      .post-title { font-size: 26px; }
-      .server-buttons { flex-direction: column; }
-      .server-buttons .btn { width: 100%; justify-content: center; }
-      .footer-grid { grid-template-columns: 1fr 1fr; }
-      .footer-bottom { flex-direction: column; text-align: center; }
-    }
-    @media (max-width: 480px) {
-      .hero-title { font-size: 26px; }
-      .section-title { font-size: 18px; }
-      .carousel-item { width: 140px; }
-      .footer-grid { grid-template-columns: 1fr; }
-    }
-    @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
-    .loading-shimmer { background: linear-gradient(90deg, var(--bg-card) 25%, var(--bg-hover) 50%, var(--bg-card) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+    .platform-tag { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.1rem 0.6rem; border-radius: 4px; font-size: 0.5rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; font-family: var(--font-orbitron); }
+    .platform-tag--ps { background: rgba(0,100,255,0.2); color: #0064ff; }
+    .platform-tag--xbox { background: rgba(0,180,0,0.2); color: #00b400; }
+    .platform-tag--pc { background: rgba(0,150,255,0.2); color: #0096ff; }
+    .platform-tag--switch { background: rgba(255,0,0,0.2); color: #ff0000; }
+    .platform-tag--zelda { background: rgba(255,215,0,0.2); color: #FFD700; }
+
+    .topbar { background: var(--bg-secondary); border-bottom: 1px solid var(--border-color); padding: 0.3rem 1.5rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.6rem; color: var(--text-muted); font-family: var(--font-orbitron); letter-spacing: 0.06em; text-transform: uppercase; }
+    .topbar a { color: var(--text-muted); transition: color var(--transition); }
+    .topbar a:hover { color: var(--neon-pink); }
+
+    .site-header { position: sticky; top: 0; z-index: 200; background: rgba(22,33,62,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border-color); transition: background var(--transition), box-shadow var(--transition); }
+    .site-header.scrolled { box-shadow: 0 4px 30px rgba(0,0,0,0.5); }
+    .header-inner { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 0.8rem 1.5rem; gap: 1rem; }
+    .header-logo { grid-column: 2; text-align: center; }
+    .header-logo a { font-family: var(--font-orbitron); font-size: clamp(1.2rem, 2.5vw, 1.8rem); font-weight: 900; letter-spacing: 0.1em; text-transform: uppercase; color: var(--white); line-height: 1; }
+    .header-logo .logo-tagline { display: block; font-family: var(--font-rajdhani); font-size: 0.5rem; letter-spacing: 0.2em; font-weight: 400; color: var(--text-muted); text-transform: uppercase; margin-top: 2px; }
+    .header-left { display: flex; align-items: center; gap: 0.8rem; }
+    .header-right { display: flex; align-items: center; gap: 0.8rem; justify-content: flex-end; }
+
+    .btn-icon { display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; transition: background var(--transition), color var(--transition); color: var(--text-secondary); background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); }
+    .btn-icon:hover { background: rgba(255,77,148,0.1); color: var(--neon-pink); border-color: var(--neon-pink); }
+
+    .nav-toggle { display: none; flex-direction: column; gap: 4px; padding: 4px; cursor: pointer; }
+    .nav-toggle span { display: block; width: 22px; height: 2px; background: var(--text-secondary); transition: transform var(--transition), opacity var(--transition); }
+
+    .main-nav { border-top: 1px solid var(--border-color); background: rgba(22,33,62,0.95); backdrop-filter: blur(8px); }
+    .nav-list { display: flex; justify-content: center; align-items: center; gap: 0; padding: 0 1.5rem; flex-wrap: wrap; }
+    .nav-item { position: relative; }
+    .nav-link { display: block; padding: 0.6rem 1.2rem; font-family: var(--font-orbitron); font-size: 0.6rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-secondary); transition: color var(--transition); position: relative; }
+    .nav-link::after { content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 0; height: 2px; background: linear-gradient(135deg, var(--neon-pink), var(--twilight-purple)); transition: width var(--transition); }
+    .nav-link:hover { color: var(--white); }
+    .nav-link:hover::after { width: calc(100% - 2.4rem); }
+
+    .nav-item:hover .mega-menu { opacity: 1; visibility: visible; transform: translateY(0); }
+    .mega-menu { position: absolute; top: 100%; left: 50%; transform: translateX(-50%) translateY(-6px); background: var(--bg-card); border: 1px solid var(--border-color); border-top: 2px solid var(--neon-pink); min-width: 180px; padding: 0.6rem 0; opacity: 0; visibility: hidden; transition: opacity var(--transition), transform var(--transition), visibility var(--transition); z-index: 300; box-shadow: 0 8px 40px rgba(0,0,0,0.6); border-radius: 8px; }
+    .mega-menu a { display: block; padding: 0.3rem 1.4rem; font-size: 0.65rem; font-weight: 500; color: var(--text-secondary); transition: color var(--transition), padding-left var(--transition); }
+    .mega-menu a:hover { color: var(--neon-pink); padding-left: 1.8rem; }
+
+    .search-overlay { position: fixed; inset: 0; background: rgba(22,33,62,0.98); z-index: 500; display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: opacity var(--transition), visibility var(--transition); }
+    .search-overlay.active { opacity: 1; visibility: visible; }
+    .search-overlay form { display: flex; align-items: center; border-bottom: 2px solid var(--neon-pink); width: min(600px, 90vw); gap: 1rem; }
+    .search-overlay input { flex: 1; background: none; border: none; outline: none; font-family: var(--font-orbitron); font-size: 1.2rem; color: var(--white); padding: 0.5rem 0; }
+    .search-overlay input::placeholder { color: var(--text-muted); }
+    .search-close { position: absolute; top: 2rem; right: 2rem; font-size: 1.8rem; color: var(--text-muted); cursor: pointer; transition: color var(--transition); }
+    .search-close:hover { color: var(--white); }
+
+    .hero { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; padding: 1.5rem 0; min-height: 60vh; }
+    .hero__feature { position: relative; border-radius: var(--radius); overflow: hidden; background: var(--bg-card); border: 1px solid var(--border-color); transition: transform var(--transition), box-shadow var(--transition); cursor: pointer; }
+    .hero__feature:hover { transform: scale(1.01); box-shadow: var(--shadow-neon-pink); }
+    .hero__feature img { width: 100%; height: 100%; object-fit: cover; aspect-ratio: 16/9; }
+    .hero__feature-overlay { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(22,33,62,0.9)); padding: 2rem 1.8rem 1.5rem; color: var(--white); }
+    .hero__feature-overlay .badge { margin-bottom: 0.6rem; }
+    .hero__feature-overlay h1 { font-family: var(--font-orbitron); font-size: clamp(1.2rem, 2.5vw, 1.8rem); font-weight: 800; line-height: 1.2; margin-bottom: 0.3rem; }
+    .hero__feature-overlay p { font-size: 0.8rem; opacity: 0.7; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .hero__sidebar { display: flex; flex-direction: column; gap: 1.5rem; }
+    .hero__secondary { position: relative; border-radius: var(--radius); overflow: hidden; background: var(--bg-card); border: 1px solid var(--border-color); transition: transform var(--transition), box-shadow var(--transition); flex: 1; cursor: pointer; }
+    .hero__secondary:hover { transform: scale(1.02); box-shadow: var(--shadow-cyan); }
+    .hero__secondary img { width: 100%; height: 100%; object-fit: cover; aspect-ratio: 16/7; }
+    .hero__secondary-overlay { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(22,33,62,0.85)); padding: 1.2rem 1.2rem 1rem; color: var(--white); }
+    .hero__secondary-overlay h2 { font-family: var(--font-orbitron); font-size: clamp(0.8rem, 1.2vw, 1rem); font-weight: 700; line-height: 1.3; }
+    .hero__secondary-overlay .badge { font-size: 0.45rem; padding: 0.1rem 0.6rem; margin-bottom: 0.3rem; }
+
+    .section-head { display: flex; justify-content: space-between; align-items: center; padding: 2rem 0 1rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1.5rem; }
+    .section-head__left { display: flex; align-items: center; gap: 0.8rem; }
+    .section-head h2 { font-family: var(--font-orbitron); font-size: clamp(1rem, 1.8vw, 1.5rem); font-weight: 700; color: var(--white); }
+    .section-head .view-all { font-size: 0.6rem; font-weight: 600; color: var(--neon-pink); font-family: var(--font-orbitron); letter-spacing: 0.06em; text-transform: uppercase; transition: color var(--transition); }
+    .section-head .view-all:hover { color: var(--sunset-orange); }
+
+    .card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius); overflow: hidden; transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition); }
+    .card:hover { transform: translateY(-4px); border-color: rgba(255,77,148,0.3); box-shadow: var(--shadow-neon-pink); }
+    .card__img { position: relative; overflow: hidden; aspect-ratio: 16/9; background: var(--bg-secondary); }
+    .card__img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+    .card:hover .card__img img { transform: scale(1.05); }
+    .card__img .badge { position: absolute; top: 0.6rem; left: 0.6rem; font-size: 0.45rem; }
+    .card__body { padding: 1rem 1rem 1rem; }
+    .card__title { font-family: var(--font-orbitron); font-size: 0.85rem; font-weight: 700; color: var(--white); line-height: 1.3; margin-bottom: 0.3rem; }
+    .card__title a { transition: color var(--transition); }
+    .card__title a:hover { color: var(--neon-pink); }
+    .card__excerpt { font-size: 0.75rem; color: var(--text-secondary); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .card__meta { display: flex; align-items: center; gap: 0.8rem; margin-top: 0.6rem; padding-top: 0.6rem; border-top: 1px solid var(--border-color); font-size: 0.55rem; color: var(--text-muted); font-weight: 500; font-family: var(--font-orbitron); letter-spacing: 0.04em; }
+
+    .countdown-section { padding: 2.5rem 0; background: linear-gradient(180deg, var(--bg-secondary), var(--bg-primary)); border-top: 1px solid rgba(255,77,148,0.15); border-bottom: 1px solid rgba(255,77,148,0.15); text-align: center; }
+    .countdown-section h2 { font-family: var(--font-orbitron); font-size: clamp(1.5rem, 3vw, 2.5rem); font-weight: 800; color: var(--white); margin-bottom: 0.3rem; }
+    .countdown-section p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem; }
+    .countdown-grid { display: flex; justify-content: center; gap: 1.5rem; flex-wrap: wrap; }
+    .countdown-item { text-align: center; min-width: 60px; }
+    .countdown-item .number { font-family: var(--font-orbitron); font-size: clamp(2rem, 4vw, 3.5rem); font-weight: 900; background: linear-gradient(135deg, var(--neon-pink), var(--twilight-purple), var(--cyan-teal)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-shadow: 0 0 30px rgba(255,77,148,0.2); }
+    .countdown-item .label { font-family: var(--font-orbitron); font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-top: 0.2rem; }
+
+    .filter-btn { padding: 0.3rem 1rem; border-radius: 20px; border: 1px solid var(--border-color); background: transparent; color: var(--text-secondary); font-family: var(--font-orbitron); font-size: 0.55rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; transition: all var(--transition); cursor: pointer; display: inline-flex; align-items: center; gap: 0.3rem; }
+    .filter-btn:hover { border-color: rgba(255,77,148,0.3); color: var(--white); }
+    .filter-btn.active { border-color: var(--neon-pink); background: rgba(255,77,148,0.1); color: var(--neon-pink); box-shadow: 0 0 20px rgba(255,77,148,0.1); }
+
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.2rem; }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
+
+    .site-content { display: grid; grid-template-columns: 1fr 300px; gap: 2rem; padding: 1.5rem 0 3rem; align-items: start; }
+
+    .post-header { margin-bottom: 1.5rem; }
+    .post-header .badge { margin-bottom: 0.6rem; }
+    .post-title { font-family: var(--font-orbitron); font-size: clamp(1.5rem, 3.5vw, 2.5rem); font-weight: 800; color: var(--white); line-height: 1.15; margin-bottom: 0.8rem; }
+    .post-meta { display: flex; align-items: center; gap: 1rem; font-size: 0.65rem; color: var(--text-muted); font-family: var(--font-orbitron); border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); padding: 0.6rem 0; }
+    .post-hero-img { border-radius: var(--radius); overflow: hidden; margin: 1.2rem 0; border: 1px solid var(--border-color); }
+    .post-hero-img img { width: 100%; height: auto; max-height: 400px; object-fit: cover; }
+    .post-body { font-size: 0.95rem; line-height: 1.8; color: var(--text-secondary); }
+    .post-body p { margin-bottom: 1rem; }
+    .post-body h2 { font-family: var(--font-orbitron); font-size: 1.2rem; font-weight: 700; color: var(--white); margin: 1.5rem 0 0.8rem; }
+    .post-body blockquote { border-left: 3px solid var(--neon-pink); padding: 0.3rem 1.2rem; margin: 1.2rem 0; background: rgba(255,77,148,0.05); border-radius: 4px; font-style: italic; }
+    .post-body a { color: var(--neon-pink); border-bottom: 1px solid transparent; transition: border-color var(--transition); }
+    .post-body a:hover { border-color: var(--neon-pink); }
+
+    .widget { margin-bottom: 1.5rem; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 1.2rem; }
+    .widget-title { font-family: var(--font-orbitron); font-size: 0.6rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--white); padding-bottom: 0.6rem; border-bottom: 1px solid var(--border-color); margin-bottom: 0.8rem; }
+    .popular-list { display: flex; flex-direction: column; gap: 0.6rem; }
+    .popular-item { display: flex; gap: 0.6rem; align-items: center; padding-bottom: 0.6rem; border-bottom: 1px solid var(--border-color); }
+    .popular-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .popular-item__num { font-family: var(--font-orbitron); font-size: 1rem; font-weight: 700; color: var(--neon-pink); min-width: 1.5rem; text-align: center; }
+    .popular-item__title { font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); line-height: 1.3; transition: color var(--transition); }
+    .popular-item__title:hover { color: var(--neon-pink); }
+
+    .tag-cloud { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+    .tag-cloud a { display: inline-block; padding: 0.15rem 0.7rem; border: 1px solid var(--border-color); border-radius: 20px; font-size: 0.6rem; font-weight: 500; color: var(--text-secondary); transition: all var(--transition); }
+    .tag-cloud a:hover { border-color: var(--neon-pink); color: var(--neon-pink); background: rgba(255,77,148,0.05); }
+
+    .newsletter-section { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 2.5rem 2rem; text-align: center; margin: 1.5rem 0; }
+    .newsletter-section h2 { font-family: var(--font-orbitron); font-size: clamp(1.2rem, 2vw, 1.8rem); font-weight: 700; color: var(--white); margin-bottom: 0.3rem; }
+    .newsletter-section p { color: var(--text-muted); font-size: 0.8rem; max-width: 420px; margin: 0 auto 1.2rem; }
+    .newsletter-form { display: flex; gap: 0; max-width: 440px; margin: 0 auto; border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; background: var(--bg-secondary); }
+    .newsletter-form input { flex: 1; padding: 0.6rem 1rem; background: transparent; border: none; outline: none; font-size: 0.8rem; color: var(--white); }
+    .newsletter-form input::placeholder { color: var(--text-muted); }
+    .newsletter-form button { padding: 0.6rem 1.5rem; background: linear-gradient(135deg, var(--neon-pink), var(--twilight-purple)); color: #fff; font-family: var(--font-orbitron); font-size: 0.6rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; transition: opacity var(--transition); }
+    .newsletter-form button:hover { opacity: 0.85; }
+
+    .site-footer { background: var(--bg-secondary); border-top: 1px solid var(--border-color); padding: 2.5rem 0 0; margin-top: 1.5rem; }
+    .footer-top { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 2rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border-color); }
+    .footer-brand .footer-logo { font-family: var(--font-orbitron); font-size: 1.2rem; font-weight: 900; letter-spacing: 0.1em; color: var(--white); display: block; margin-bottom: 0.3rem; }
+    .footer-brand p { font-size: 0.75rem; color: var(--text-muted); line-height: 1.6; max-width: 240px; margin-bottom: 0.8rem; }
+    .footer-social { display: flex; gap: 0.5rem; }
+    .footer-social a { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border: 1px solid var(--border-color); border-radius: 50%; transition: all var(--transition); color: var(--text-muted); }
+    .footer-social a:hover { border-color: var(--neon-pink); color: var(--neon-pink); }
+
+    .footer-col h4 { font-family: var(--font-orbitron); font-size: 0.55rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--white); margin-bottom: 0.8rem; }
+    .footer-col ul { display: flex; flex-direction: column; gap: 0.4rem; }
+    .footer-col ul a { font-size: 0.75rem; color: var(--text-muted); transition: color var(--transition); }
+    .footer-col ul a:hover { color: var(--neon-pink); }
+
+    .footer-bottom { display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; border-top: 1px solid var(--border-color); font-size: 0.6rem; color: var(--text-muted); }
+    .footer-bottom a { color: var(--text-muted); transition: color var(--transition); }
+    .footer-bottom a:hover { color: var(--neon-pink); }
+
+    .mobile-nav { position: fixed; top: 0; left: 0; bottom: 0; width: 280px; background: var(--bg-card); z-index: 600; transform: translateX(-100%); transition: transform var(--transition); overflow-y: auto; padding: 1.5rem; border-right: 1px solid var(--border-color); }
+    .mobile-nav.open { transform: translateX(0); }
+    .mobile-nav-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 599; opacity: 0; visibility: hidden; transition: opacity var(--transition), visibility var(--transition); }
+    .mobile-nav-overlay.open { opacity: 1; visibility: visible; }
+    .mobile-nav-close { display: flex; justify-content: flex-end; margin-bottom: 1.2rem; }
+    .mobile-nav-logo { font-family: var(--font-orbitron); font-size: 1.2rem; font-weight: 900; color: var(--white); display: block; text-align: center; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color); }
+    .mobile-nav ul { display: flex; flex-direction: column; gap: 0; }
+    .mobile-nav ul li a { display: block; padding: 0.6rem 0; font-family: var(--font-orbitron); font-size: 0.65rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-secondary); border-bottom: 1px solid var(--border-color); transition: color var(--transition), padding-left var(--transition); }
+    .mobile-nav ul li a:hover { color: var(--neon-pink); padding-left: 0.5rem; }
+
+    .back-to-top { position: fixed; bottom: 1.5rem; right: 1.5rem; width: 40px; height: 40px; background: linear-gradient(135deg, var(--neon-pink), var(--twilight-purple)); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 50%; opacity: 0; visibility: hidden; transform: translateY(12px); transition: all var(--transition); z-index: 100; box-shadow: var(--shadow-neon-pink); }
+    .back-to-top.visible { opacity: 1; visibility: visible; transform: translateY(0); }
+    .back-to-top:hover { opacity: 0.85; transform: translateY(-2px); }
+
+    .sidebar-section { display: none; }
+    body.archive-template .sidebar-section, body.label-template .sidebar-section { display: block; }
+    body.archive-template .container .site-content, body.label-template .container .site-content { display: grid; grid-template-columns: 1fr 300px; gap: 2rem; align-items: start; }
+
+    @media (max-width: 1024px) { .grid-4 { grid-template-columns: repeat(2, 1fr); } .footer-top { grid-template-columns: 1fr 1fr; } .hero { grid-template-columns: 1fr; min-height: auto; } .hero__sidebar { display: none; } }
+    @media (max-width: 768px) { .topbar { display: none; } .main-nav { display: none; } .nav-toggle { display: flex; } .site-content { grid-template-columns: 1fr; } .grid-3, .grid-4 { grid-template-columns: 1fr; } .grid-2 { grid-template-columns: 1fr; } .footer-top { grid-template-columns: 1fr; gap: 1.5rem; } .header-inner { padding: 0.6rem 1rem; } .footer-bottom { flex-direction: column; gap: 0.5rem; text-align: center; } .back-to-top { bottom: 1rem; right: 1rem; } .newsletter-form { flex-direction: column; border-radius: 8px; } .newsletter-form input { border-bottom: 1px solid var(--border-color); } .newsletter-form button { border-radius: 0 0 8px 8px; } .search-overlay input { font-size: 0.9rem; } .countdown-grid { gap: 1rem; } .countdown-item { min-width: 50px; } body.archive-template .container .site-content, body.label-template .container .site-content { grid-template-columns: 1fr; } body.archive-template .sidebar-section, body.label-template .sidebar-section { display: none; } }
+    @media (max-width: 480px) { .grid-4 { grid-template-columns: 1fr; } .countdown-item .number { font-size: 1.5rem; } }
+
+    :focus-visible { outline: 2px solid var(--neon-pink); outline-offset: 2px; }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; } }
+
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .animate-in { animation: fadeInUp 0.5s ease forwards; }
+    .animate-in:nth-child(2) { animation-delay: 0.1s; }
+    .animate-in:nth-child(3) { animation-delay: 0.2s; }
+    .animate-in:nth-child(4) { animation-delay: 0.3s; }
   </style>
 </head>
 
 <body>
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": "#organization",
+          "name": "GameHub",
+          "url": "/",
+          "logo": { "@type": "ImageObject", "url": "/favicon.ico" }
+        },
+        {
+          "@type": "WebSite",
+          "@id": "#website",
+          "url": "/",
+          "name": "GameHub",
+          "publisher": {"@id": "#organization"},
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": "/search?q={search_term_string}",
+            "query-input": "required name=search_term_string"
+          }
+        }
+      ]
+    }
+  </script>
 
-<header class="header" id="header">
-  <a class="logo" href="/">Stream<span>Flix</span></a>
-  <nav class="nav-links" id="navLinks">
-    <a href="/">Home</a>
-    <a href="/search/label/Movies">Movies</a>
-    <a href="/search/label/TV%20Series">TV Series</a>
-    <a href="/search/label/News">News</a>
-    <a href="/search/label/Reviews">Reviews</a>
-    <a href="/p/about.html">About</a>
-  </nav>
-  <div class="search-container">
-    <form action="/search" method="get">
-      <input class="search-input" name="q" placeholder="Search movies, series..." type="text"/>
-      <button class="search-btn" type="submit">🔍</button>
+  <div aria-label="Search" class="search-overlay" id="searchOverlay" role="dialog">
+    <button aria-label="Close search" class="search-close" id="searchClose">&#10005;</button>
+    <form action="/search" method="get" role="search">
+      <input aria-label="Search games" autocomplete="off" id="searchInput" name="q" placeholder="Search games, news, reviews…" type="search"/>
+      <button aria-label="Submit search" type="submit">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="7"/><line x1="16.5" x2="22" y1="16.5" y2="22"/></svg>
+      </button>
     </form>
   </div>
-  <div class="menu-toggle" id="menuToggle" onclick="toggleMenu()">
-    <span/>
-    <span/>
-    <span/>
-  </div>
-</header>
 
-<section class="hero-banner">
-  <img alt="Avengers: Doomsday Backdrop" class="hero-backdrop" src="https://i.pinimg.com/736x/5b/df/df/5bdfdf875d40cb24a0917024a32314a9.jpg"/>
-  <div class="hero-overlay"/>
-  <div class="hero-content">
-    <span class="hero-badge">2026 Box Office Hit</span>
-    <h1 class="hero-title">Avengers: Doomsday</h1>
-    <div class="hero-meta">
-      <span class="rating">&#9733; 9.2 IMDb</span>
-      <span class="year">2026</span>
-      <span class="duration">2h 45min</span>
-      <span class="genre">Action, Sci-Fi, Superhero</span>
+  <div class="mobile-nav-overlay" id="mobileNavOverlay"/>
+  <nav aria-label="Mobile navigation" class="mobile-nav" id="mobileNav">
+    <div class="mobile-nav-close">
+      <button aria-label="Close menu" class="btn-icon" id="mobileNavClose">
+        <svg viewBox="0 0 24 24"><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg>
+      </button>
     </div>
-    <p class="hero-description">
-      The Marvel Cinematic Universe reaches its epic conclusion as the Avengers face their greatest threat yet.
-      With the fate of the multiverse hanging in the balance, Earth&#39;s mightiest heroes must unite one last time
-      against an unstoppable force that threatens to unravel all of reality.
-    </p>
-    <div class="hero-buttons">
-      <a class="btn btn-primary" href="#server1">
-        <span class="btn-icon">&#9654;</span>
-        Stream Now (Server 1)
-      </a>
-      <a class="btn btn-secondary" href="https://www.youtube.com/results?search_query=avengers+doomsday+trailer" target="_blank">
-        <span class="btn-icon">&#9654;</span>
-        Watch Trailer
-      </a>
+    <a class="mobile-nav-logo" href="/">GAME<span style="color:var(--neon-pink)">HUB</span></a>
+    <ul>
+      <li><a href="/">Home</a></li>
+      <li><a href="/search/label/News">News</a></li>
+      <li><a href="/search/label/Reviews">Reviews</a></li>
+      <li><a href="/search/label/PC">PC</a></li>
+      <li><a href="/search/label/PlayStation">PlayStation</a></li>
+      <li><a href="/search/label/Xbox">Xbox</a></li>
+      <li><a href="/search/label/Nintendo">Nintendo</a></li>
+      <li><a href="/p/about.html">About</a></li>
+    </ul>
+  </nav>
+
+  <div class="topbar" role="banner">
+    <div class="topbar__date" id="topbarDate"/>
+    <div class="topbar__social">
+      <a aria-label="Twitter" href="#" rel="noopener noreferrer" target="_blank">Twitter</a>
+      <a aria-label="YouTube" href="#" rel="noopener noreferrer" target="_blank">YouTube</a>
+      <a aria-label="Discord" href="#" rel="noopener noreferrer" target="_blank">Discord</a>
     </div>
   </div>
-</section>
 
-<section class="content-section">
-  <div class="section-header">
-    <h2 class="section-title">
-      <span class="icon">🍿</span>
-      Box Office Movies
-    </h2>
-    <a class="see-all" href="/search/label/Movies">See All &#8250;</a>
-  </div>
-  <div class="carousel-container">
-    <button class="carousel-nav prev" onclick="scrollCarousel('moviesCarousel', -1)">&#8249;</button>
-    <div class="carousel" id="moviesCarousel">
-      <div class="carousel-item">
-        <img alt="Spider-Man: Brand New Day" class="poster" src="https://i.pinimg.com/736x/5b/df/df/5bdfdf875d40cb24a0917024a32314a9.jpg"/>
-        <div class="item-info">
-          <div class="item-title">Spider-Man: Brand New Day</div>
-          <div class="item-meta">
-            <span class="item-rating">&#9733; 8.7</span>
-            <span>2026</span>
-            <span>Action</span>
-          </div>
-        </div>
+  <header class="site-header" id="siteHeader" role="banner">
+    <div class="header-inner">
+      <div class="header-left">
+        <button aria-expanded="false" aria-label="Open menu" class="nav-toggle" id="navToggle"><span/><span/><span/></button>
+        <button aria-label="Open search" class="btn-icon" id="searchToggle">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" x2="22" y1="16.5" y2="22"/></svg>
+        </button>
       </div>
-      <div class="carousel-item">
-        <img alt="Mutiny" class="poster" src="https://i.pinimg.com/736x/91/17/75/9117751636528b25a7b4687cab63572d.jpg"/>
-        <div class="item-info">
-          <div class="item-title">Mutiny</div>
-          <div class="item-meta">
-            <span class="item-rating">&#9733; 7.9</span>
-            <span>2026</span>
-            <span>Action</span>
-          </div>
-        </div>
+      <div class="header-logo">
+        <a href="/">GAME<span class="neon-text-pink">HUB</span><span class="logo-tagline">Your Gaming News Source</span></a>
       </div>
-      <div class="carousel-item">
-        <img alt="Avengers: Doomsday" class="poster" src="https://i.pinimg.com/736x/5b/df/df/5bdfdf875d40cb24a0917024a32314a9.jpg"/>
-        <div class="item-info">
-          <div class="item-title">Avengers: Doomsday</div>
-          <div class="item-meta">
-            <span class="item-rating">&#9733; 9.2</span>
-            <span>2026</span>
-            <span>Superhero</span>
-          </div>
-        </div>
-      </div>
-      <div class="carousel-item">
-        <div class="poster loading-shimmer" style="background:#1a1a1a;display:flex;align-items:center;justify-content:center;color:#737373;aspect-ratio:2/3;">Coming Soon</div>
-        <div class="item-info">
-          <div class="item-title">The Batman 2</div>
-          <div class="item-meta">
-            <span class="item-rating">&#9733; TBD</span>
-            <span>2026</span>
-            <span>Action</span>
-          </div>
-        </div>
-      </div>
-      <div class="carousel-item">
-        <div class="poster loading-shimmer" style="background:#1a1a1a;display:flex;align-items:center;justify-content:center;color:#737373;aspect-ratio:2/3;">Coming Soon</div>
-        <div class="item-info">
-          <div class="item-title">Mission: Impossible 8</div>
-          <div class="item-meta">
-            <span class="item-rating">&#9733; TBD</span>
-            <span>2026</span>
-            <span>Action</span>
-          </div>
-        </div>
-      </div>
-      <div class="carousel-item">
-        <div class="poster loading-shimmer" style="background:#1a1a1a;display:flex;align-items:center;justify-content:center;color:#737373;aspect-ratio:2/3;">Coming Soon</div>
-        <div class="item-info">
-          <div class="item-title">Jurassic World 4</div>
-          <div class="item-meta">
-            <span class="item-rating">&#9733; TBD</span>
-            <span>2026</span>
-            <span>Adventure</span>
-          </div>
-        </div>
+      <div class="header-right">
+        <button aria-label="Toggle dark mode" class="btn-icon" id="darkModeToggle">
+          <svg id="iconSun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><line x1="12" x2="12" y1="2" y2="5"/><line x1="12" x2="12" y1="19" y2="22"/><line x1="4.22" x2="6.34" y1="4.22" y2="6.34"/><line x1="17.66" x2="19.78" y1="17.66" y2="19.78"/><line x1="2" x2="5" y1="12" y2="12"/><line x1="19" x2="22" y1="12" y2="12"/><line x1="4.22" x2="6.34" y1="19.78" y2="17.66"/><line x1="17.66" x2="19.78" y1="6.34" y2="4.22"/></svg>
+          <svg id="iconMoon" style="display:none" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+        </button>
       </div>
     </div>
-    <button class="carousel-nav next" onclick="scrollCarousel('moviesCarousel', 1)">&#8250;</button>
-  </div>
-</section>
+    <nav aria-label="Main navigation" class="main-nav">
+      <ul class="nav-list">
+        <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+        <li class="nav-item">
+          <a class="nav-link" href="/search/label/News">News</a>
+          <div class="mega-menu">
+            <a href="/search/label/Breaking">Breaking</a>
+            <a href="/search/label/Updates">Updates</a>
+            <a href="/search/label/Trailers">Trailers</a>
+          </div>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/search/label/Reviews">Reviews</a>
+          <div class="mega-menu">
+            <a href="/search/label/Reviews">All Reviews</a>
+            <a href="/search/label/PC">PC</a>
+            <a href="/search/label/PlayStation">PlayStation</a>
+            <a href="/search/label/Xbox">Xbox</a>
+            <a href="/search/label/Nintendo">Nintendo</a>
+          </div>
+        </li>
+        <li class="nav-item"><a class="nav-link" href="/search/label/PC">PC</a></li>
+        <li class="nav-item"><a class="nav-link" href="/search/label/PlayStation">PlayStation</a></li>
+        <li class="nav-item"><a class="nav-link" href="/search/label/Xbox">Xbox</a></li>
+        <li class="nav-item"><a class="nav-link" href="/search/label/Nintendo">Nintendo</a></li>
+        <li class="nav-item"><a class="nav-link" href="/p/about.html">About</a></li>
+      </ul>
+    </nav>
+  </header>
 
-<section class="content-section">
-  <div class="section-header">
-    <h2 class="section-title">
-      <span class="icon">📺</span>
-      Trending TV Series 2026
-    </h2>
-    <a class="see-all" href="/search/label/TV%20Series">See All &#8250;</a>
-  </div>
-  <div class="carousel-container">
-    <button class="carousel-nav prev" onclick="scrollCarousel('seriesCarousel', -1)">&#8249;</button>
-    <div class="carousel" id="seriesCarousel">
-      <div class="carousel-item">
-        <img alt="House of the Dragon Season 3" class="poster" src="https://i.pinimg.com/736x/11/f3/48/11f348dd088bc6926d5323112b6cddb5.jpg"/>
-        <div class="item-info">
-          <div class="item-title">House of the Dragon S3</div>
-          <div class="item-meta">
-            <span class="item-rating">&#9733; 8.9</span>
-            <span>2026</span>
-            <span>Fantasy</span>
+  <main id="main-content" role="main" tabindex="-1">
+    <section class="main" id="main">
+      <div class="widget Blog" id="Blog1">
+        <div class="widget-settings">
+          <div class="widget-setting" name="showDateHeader">false</div>
+          <div class="widget-setting" name="style.textcolor">#ffffff</div>
+          <div class="widget-setting" name="showShareButtons">true</div>
+          <div class="widget-setting" name="showCommentLink">true</div>
+          <div class="widget-setting" name="style.urlcolor">#ffffff</div>
+          <div class="widget-setting" name="showAuthor">true</div>
+          <div class="widget-setting" name="style.linkcolor">#ffffff</div>
+          <div class="widget-setting" name="style.unittype">TextAndImage</div>
+          <div class="widget-setting" name="style.bgcolor">#ffffff</div>
+          <div class="widget-setting" name="timestampLabel"></div>
+          <div class="widget-setting" name="reactionsLabel"></div>
+          <div class="widget-setting" name="showAuthorProfile">true</div>
+          <div class="widget-setting" name="style.layout">1x1</div>
+          <div class="widget-setting" name="showLabels">true</div>
+          <div class="widget-setting" name="showLocation">true</div>
+          <div class="widget-setting" name="postLabelsLabel"></div>
+          <div class="widget-setting" name="showTimestamp">true</div>
+          <div class="widget-setting" name="postsPerAd">1</div>
+          <div class="widget-setting" name="showBacklinks">false</div>
+          <div class="widget-setting" name="style.bordercolor">#ffffff</div>
+          <div class="widget-setting" name="showInlineAds">false</div>
+          <div class="widget-setting" name="showReactions">false</div>
+        </div>
+
+        <div class="container">
+          <section aria-label="Featured stories" class="hero">
+            <article class="hero__feature scanline">
+              <img alt="Zelda Ocarina of Time Remake" height="500" loading="eager" src="https://i.pinimg.com/1200x/27/88/89/278889c6daee81300a833351576c244a.jpg" width="800"/>
+              <div class="hero__feature-overlay">
+                <span class="badge badge--cyan">Breaking News</span>
+                <h1>Zelda: Ocarina of Time Remake Announced for Switch 2</h1>
+                <p>Nintendo reveals the most anticipated remake of the classic game with stunning new visuals.</p>
+              </div>
+            </article>
+            <div class="hero__sidebar">
+              <article class="hero__secondary scanline">
+                <img alt="Resident Evil Code Veronica" height="250" loading="eager" src="https://i.pinimg.com/1200x/03/48/7c/03487c1cb2bc0db537e5549800679ea1.jpg" width="800"/>
+                <div class="hero__secondary-overlay">
+                  <span class="badge badge--orange">Review</span>
+                  <h2>Resident Evil: Code Veronica Remake Announced</h2>
+                </div>
+              </article>
+              <article class="hero__secondary scanline">
+                <img alt="GTA 6 news" height="250" loading="eager" src="https://i.pinimg.com/736x/9b/db/38/9bdb38262b7d1182a726fb018884485d.jpg" width="800"/>
+                <div class="hero__secondary-overlay">
+                  <span class="badge badge--outline">eSports</span>
+                  <h2>GTA 6: Vice City Returns in 2025</h2>
+                </div>
+              </article>
+            </div>
+          </section>
+
+          <section class="countdown-section">
+            <h2>GTA 6 <span class="neon-text-pink">Countdown</span></h2>
+            <p>The most anticipated release of the year</p>
+            <div class="countdown-grid" id="countdownTimer">
+              <div class="countdown-item"><div class="number" id="days">--</div><div class="label">Days</div></div>
+              <div class="countdown-item"><div class="number" id="hours">--</div><div class="label">Hours</div></div>
+              <div class="countdown-item"><div class="number" id="minutes">--</div><div class="label">Minutes</div></div>
+              <div class="countdown-item"><div class="number" id="seconds">--</div><div class="label">Seconds</div></div>
+            </div>
+          </section>
+
+          <div style="display:flex;flex-wrap:wrap;gap:0.5rem;padding:0.5rem 0 1rem">
+            <a class="filter-btn active" href="/search/label/News">🎮 All News</a>
+            <a class="filter-btn" href="/search/label/Nintendo">🔴 Nintendo</a>
+            <a class="filter-btn" href="/search/label/PlayStation">🔵 PlayStation</a>
+            <a class="filter-btn" href="/search/label/Xbox">🟢 Xbox</a>
+            <a class="filter-btn" href="/search/label/PC">🖥️ PC</a>
+            <a class="filter-btn" href="/search/label/Reviews">⭐ Reviews</a>
           </div>
+
+          <div class="section-head">
+            <div class="section-head__left"><h2>Latest News</h2><span class="badge">Live</span></div>
+            <a class="view-all" href="/search/label/News">View All →</a>
+          </div>
+          <div class="grid-3" style="margin-bottom:1.5rem">
+            <article class="card animate-in">
+              <div class="card__img">
+                <a href="#" tabindex="-1">
+                  <img alt="Game News" src="https://i.pinimg.com/736x/27/88/89/278889c6daee81300a833351576c244a.jpg" height="200" loading="lazy" width="400"/>
+                </a>
+                <span class="badge">New</span>
+              </div>
+              <div class="card__body">
+                <span class="platform-tag platform-tag--zelda">Nintendo</span>
+                <h3 class="card__title"><a href="#">Zelda: Ocarina of Time Remake Announced</a></h3>
+                <p class="card__excerpt">Nintendo reveals the most anticipated remake of the classic game with stunning new visuals.</p>
+                <div class="card__meta"><time datetime="2024-03-15">March 15, 2024</time><span>•</span><span>GameHub Staff</span></div>
+              </div>
+            </article>
+            <article class="card animate-in">
+              <div class="card__img">
+                <a href="#" tabindex="-1">
+                  <img alt="Game News" src="https://i.pinimg.com/736x/03/48/7c/03487c1cb2bc0db537e5549800679ea1.jpg" height="200" loading="lazy" width="400"/>
+                </a>
+                <span class="badge">New</span>
+              </div>
+              <div class="card__body">
+                <span class="platform-tag platform-tag--ps">PlayStation</span>
+                <h3 class="card__title"><a href="#">Resident Evil: Code Veronica Remake Announced</a></h3>
+                <p class="card__excerpt">Capcom brings back the classic survival horror with stunning visuals and modern gameplay.</p>
+                <div class="card__meta"><time datetime="2024-03-14">March 14, 2024</time><span>•</span><span>GameHub Staff</span></div>
+              </div>
+            </article>
+            <article class="card animate-in">
+              <div class="card__img">
+                <a href="#" tabindex="-1">
+                  <img alt="Game News" src="https://i.pinimg.com/736x/9b/db/38/9bdb38262b7d1182a726fb018884485d.jpg" height="200" loading="lazy" width="400"/>
+                </a>
+                <span class="badge">New</span>
+              </div>
+              <div class="card__body">
+                <span class="platform-tag platform-tag--pc">PC</span>
+                <h3 class="card__title"><a href="#">GTA 6: Vice City Returns in 2025</a></h3>
+                <p class="card__excerpt">Rockstar Games announces the next installment in the Grand Theft Auto series.</p>
+                <div class="card__meta"><time datetime="2024-03-13">March 13, 2024</time><span>•</span><span>GameHub Staff</span></div>
+              </div>
+            </article>
+            <article class="card animate-in">
+              <div class="card__img">
+                <a href="#" tabindex="-1">
+                  <img alt="Game News" src="https://i.pinimg.com/736x/66/ef/cc/66efcc8e1705091f728cd815236e690a.jpg" height="200" loading="lazy" width="400"/>
+                </a>
+                <span class="badge">Review</span>
+              </div>
+              <div class="card__body">
+                <span class="platform-tag platform-tag--switch">Nintendo</span>
+                <h3 class="card__title"><a href="#">Ocarina of Time Remake Review – A Masterpiece Reborn</a></h3>
+                <p class="card__excerpt">Nintendo delivers an emotional, visually stunning remake that redefines the classic.</p>
+                <div class="card__meta"><time datetime="2024-03-12">March 12, 2024</time><span>•</span><span>GameHub Staff</span></div>
+              </div>
+            </article>
+            <article class="card animate-in">
+              <div class="card__img">
+                <a href="#" tabindex="-1">
+                  <img alt="Game News" src="https://i.pinimg.com/736x/ce/d6/95/ced695970209d44d8ef013aa8d3f9cf6.jpg" height="200" loading="lazy" width="400"/>
+                </a>
+                <span class="badge">Review</span>
+              </div>
+              <div class="card__body">
+                <span class="platform-tag platform-tag--ps">PlayStation</span>
+                <h3 class="card__title"><a href="#">Resident Evil: Code Veronica Remake Review</a></h3>
+                <p class="card__excerpt">Capcom brings back the classic survival horror with stunning visuals and modern gameplay.</p>
+                <div class="card__meta"><time datetime="2024-03-11">March 11, 2024</time><span>•</span><span>GameHub Staff</span></div>
+              </div>
+            </article>
+            <article class="card animate-in">
+              <div class="card__img">
+                <a href="#" tabindex="-1">
+                  <img alt="Game News" src="https://i.pinimg.com/736x/00/a8/e4/00a8e4a3edf9937c186dbecd009fd48d.jpg" height="200" loading="lazy" width="400"/>
+                </a>
+                <span class="badge">News</span>
+              </div>
+              <div class="card__body">
+                <span class="platform-tag platform-tag--zelda">Nintendo</span>
+                <h3 class="card__title"><a href="#">Nintendo Direct: Biggest Announcements</a></h3>
+                <p class="card__excerpt">Nintendo reveals a slew of new games and updates in their latest Direct presentation.</p>
+                <div class="card__meta"><time datetime="2024-03-10">March 10, 2024</time><span>•</span><span>GameHub Staff</span></div>
+              </div>
+            </article>
+          </div>
+
+          <div class="section-head">
+            <div class="section-head__left"><h2>Featured Reviews</h2><span class="badge badge--orange">Top Rated</span></div>
+            <a class="view-all" href="/search/label/Reviews">All Reviews →</a>
+          </div>
+          <div class="grid-2" style="margin-bottom:1.5rem">
+            <article class="card glow-card animate-in">
+              <div class="card__img">
+                <img alt="Zelda Ocarina of Time" height="250" loading="lazy" src="https://i.pinimg.com/736x/66/ef/cc/66efcc8e1705091f728cd815236e690a.jpg" width="500"/>
+                <span class="badge">9.8/10</span>
+              </div>
+              <div class="card__body">
+                <span class="platform-tag platform-tag--switch">Nintendo Switch 2</span>
+                <h3 class="card__title"><a href="/search/label/Reviews">Ocarina of Time Remake — A Masterpiece Reborn</a></h3>
+                <p class="card__excerpt">Nintendo delivers an emotional, visually stunning remake that redefines the classic.</p>
+                <div class="card__meta"><span>March 2024</span><span>•</span><span>By GameHub Staff</span></div>
+              </div>
+            </article>
+            <article class="card glow-card animate-in">
+              <div class="card__img">
+                <img alt="Resident Evil Code Veronica" height="250" loading="lazy" src="https://i.pinimg.com/736x/ce/d6/95/ced695970209d44d8ef013aa8d3f9cf6.jpg" width="500"/>
+                <span class="badge">9.0/10</span>
+              </div>
+              <div class="card__body">
+                <span class="platform-tag platform-tag--ps">PlayStation 5</span>
+                <h3 class="card__title"><a href="/search/label/Reviews">Resident Evil: Code Veronica Remake Review</a></h3>
+                <p class="card__excerpt">Capcom brings back the classic survival horror with stunning visuals and modern gameplay.</p>
+                <div class="card__meta"><span>February 2024</span><span>•</span><span>By GameHub Staff</span></div>
+              </div>
+            </article>
+          </div>
+
+          <section class="newsletter-section">
+            <h2>Get the Latest Gaming News</h2>
+            <p>Subscribe to our newsletter for daily updates, reviews, and exclusive interviews.</p>
+            <form action="#" class="newsletter-form" method="post">
+              <input aria-label="Your email" name="email" placeholder="Enter your email address" required="" type="email"/>
+              <button type="submit">Subscribe</button>
+            </form>
+          </section>
         </div>
       </div>
-      <div class="carousel-item">
-        <img alt="Reacher Season 4" class="poster" src="https://i.pinimg.com/736x/69/77/8e/69778ebf35cd22018c872a088b34b682.jpg"/>
-        <div class="item-info">
-          <div class="item-title">Reacher Season 4</div>
-          <div class="item-meta">
-            <span class="item-rating">&#9733; 8.5</span>
-            <span>2026</span>
-            <span>Action</span>
-          </div>
-        </div>
-      </div>
-      <div class="carousel-item">
-        <img alt="Wednesday Season 2" class="poster" src="https://i.pinimg.com/736x/11/f3/48/11f348dd088bc6926d5323112b6cddb5.jpg"/>
-        <div class="item-info">
-          <div class="item-title">Wednesday Season 2</div>
-          <div class="item-meta">
-            <span class="item-rating">&#9733; 8.8</span>
-            <span>2026</span>
-            <span>Horror</span>
-          </div>
-        </div>
-      </div>
-      <div class="carousel-item">
-        <div class="poster loading-shimmer" style="background:#1a1a1a;display:flex;align-items:center;justify-content:center;color:#737373;aspect-ratio:2/3;">Coming Soon</div>
-        <div class="item-info">
-          <div class="item-title">Stranger Things 5</div>
-          <div class="item-meta">
-            <span class="item-rating">&#9733; TBD</span>
-            <span>2026</span>
-            <span>Sci-Fi</span>
-          </div>
-        </div>
-      </div>
-      <div class="carousel-item">
-        <div class="poster loading-shimmer" style="background:#1a1a1a;display:flex;align-items:center;justify-content:center;color:#737373;aspect-ratio:2/3;">Coming Soon</div>
-        <div class="item-info">
-          <div class="item-title">The Witcher Season 4</div>
-          <div class="item-meta">
-            <span class="item-rating">&#9733; TBD</span>
-            <span>2026</span>
-            <span>Fantasy</span>
-          </div>
-        </div>
-      </div>
-      <div class="carousel-item">
-        <div class="poster loading-shimmer" style="background:#1a1a1a;display:flex;align-items:center;justify-content:center;color:#737373;aspect-ratio:2/3;">Coming Soon</div>
-        <div class="item-info">
-          <div class="item-title">Squid Game Season 3</div>
-          <div class="item-meta">
-            <span class="item-rating">&#9733; TBD</span>
-            <span>2026</span>
-            <span>Thriller</span>
-          </div>
-        </div>
+    </section>
+  </main>
+
+  <section class="sidebar-section" id="sidebar">
+    <div class="widget" id="PopularPosts1">
+      <div class="widget-title">🔥 Trending Now</div>
+      <div class="popular-list">
+        <div class="popular-item"><span class="popular-item__num">1</span><a class="popular-item__title" href="#">Zelda: Ocarina of Time Remake</a></div>
+        <div class="popular-item"><span class="popular-item__num">2</span><a class="popular-item__title" href="#">Resident Evil: Code Veronica Remake</a></div>
+        <div class="popular-item"><span class="popular-item__num">3</span><a class="popular-item__title" href="#">GTA 6: Vice City Returns</a></div>
+        <div class="popular-item"><span class="popular-item__num">4</span><a class="popular-item__title" href="#">Nintendo Direct: Biggest Announcements</a></div>
+        <div class="popular-item"><span class="popular-item__num">5</span><a class="popular-item__title" href="#">The Witcher 4: First Details</a></div>
       </div>
     </div>
-    <button class="carousel-nav next" onclick="scrollCarousel('seriesCarousel', 1)">&#8250;</button>
-  </div>
-</section>
 
-<section class="content-section">
-  <div class="section-header">
-    <h2 class="section-title">
-      <span class="icon">📰</span>
-      Latest News &amp; Reviews
-    </h2>
-    <a class="see-all" href="/search/label/News">See All &#8250;</a>
-  </div>
-  <div class="news-grid">
-    <article class="news-card">
-      <div class="news-image loading-shimmer" style="background:linear-gradient(135deg,#1a1a2e,#16213e);display:flex;align-items:center;justify-content:center;color:#737373;">
-        <span style="font-size:48px;">🎥</span>
+    <div class="widget" id="Label1">
+      <div class="widget-title">🏷️ Platforms &amp; Tags</div>
+      <div class="tag-cloud">
+        <a href="/search/label/PC">PC</a>
+        <a href="/search/label/PlayStation">PlayStation</a>
+        <a href="/search/label/Xbox">Xbox</a>
+        <a href="/search/label/Nintendo">Nintendo</a>
+        <a href="/search/label/News">News</a>
+        <a href="/search/label/Reviews">Reviews</a>
+        <a href="/search/label/Action">Action</a>
+        <a href="/search/label/RPG">RPG</a>
+        <a href="/search/label/Strategy">Strategy</a>
+        <a href="/search/label/eSports">eSports</a>
       </div>
-      <div class="news-content">
-        <span class="news-tag">Box Office</span>
-        <h3 class="news-title">Avengers: Doomsday Shatters Opening Weekend Records with $380M Global Debut</h3>
-        <p class="news-excerpt">Marvel's epic conclusion dominates the worldwide box office, becoming the highest-grossing opening weekend in cinematic history and setting new benchmarks for superhero films.</p>
-        <div class="news-meta">
-          <span class="author">👤 Entertainment Weekly</span>
-          <span class="date">📅 July 2, 2026</span>
-        </div>
-      </div>
-    </article>
-    <article class="news-card">
-      <div class="news-image loading-shimmer" style="background:linear-gradient(135deg,#1a1a2e,#16213e);display:flex;align-items:center;justify-content:center;color:#737373;">
-        <span style="font-size:48px;">🎬</span>
-      </div>
-      <div class="news-content">
-        <span class="news-tag">Review</span>
-        <h3 class="news-title">Spider-Man: Brand New Day Review - A Fresh Start for the Web-Slinger</h3>
-        <p class="news-excerpt">Tom Holland returns in what critics are calling the most emotionally resonant Spider-Man film yet, blending spectacular action with genuine heart and humor.</p>
-        <div class="news-meta">
-          <span class="author">👤 Rotten Tomatoes</span>
-          <span class="date">📅 June 28, 2026</span>
-        </div>
-      </div>
-    </article>
-    <article class="news-card">
-      <div class="news-image loading-shimmer" style="background:linear-gradient(135deg,#1a1a2e,#16213e);display:flex;align-items:center;justify-content:center;color:#737373;">
-        <span style="font-size:48px;">📸</span>
-      </div>
-      <div class="news-content">
-        <span class="news-tag">Celebrity</span>
-        <h3 class="news-title">Jason Statham's Mutiny: The Action Star's Most Intense Role Yet</h3>
-        <p class="news-excerpt">In a career-defining performance, Statham delivers raw intensity in this high-seas thriller that redefines the modern action genre with practical stunts and relentless pacing.</p>
-        <div class="news-meta">
-          <span class="author">👤 Variety</span>
-          <span class="date">📅 June 25, 2026</span>
-        </div>
-      </div>
-    </article>
-    <article class="news-card">
-      <div class="news-image loading-shimmer" style="background:linear-gradient(135deg,#1a1a2e,#16213e);display:flex;align-items:center;justify-content:center;color:#737373;">
-        <span style="font-size:48px;">📺</span>
-      </div>
-      <div class="news-content">
-        <span class="news-tag">TV Series</span>
-        <h3 class="news-title">House of the Dragon Season 3: The Dance of Dragons Intensifies</h3>
-        <p class="news-excerpt">HBO's epic fantasy returns with bigger battles, deeper political intrigue, and shocking twists that will forever change the Targaryen dynasty's fate.</p>
-        <div class="news-meta">
-          <span class="author">👤 The Hollywood Reporter</span>
-          <span class="date">📅 July 1, 2026</span>
-        </div>
-      </div>
-    </article>
-  </div>
-</section>
+    </div>
 
-<section class="content-section" style="padding:40px 4%;">
-  <div class="section-header">
-    <h2 class="section-title">
-      <span class="icon">⭐</span>
-      Recent Blog Posts
-    </h2>
-    <a class="see-all" href="/">See All &#8250;</a>
-  </div>
-  <div class="news-grid">
-    <article class="news-card">
-      <div class="news-image loading-shimmer" style="background:linear-gradient(135deg,#1a1a2e,#16213e);display:flex;align-items:center;justify-content:center;color:#737373;">
-        <span style="font-size:48px;">📝</span>
-      </div>
-      <div class="news-content">
-        <span class="news-tag">Blog</span>
-        <h3 class="news-title">The Future of Cinema: How AI is Changing Storytelling</h3>
-        <p class="news-excerpt">Exploring the intersection of artificial intelligence and filmmaking, and how new technologies are reshaping the way stories are told on screen.</p>
-        <div class="news-meta">
-          <span class="author">👤 StreamFlix Team</span>
-          <span class="date">📅 July 5, 2026</span>
-        </div>
-      </div>
-    </article>
-    <article class="news-card">
-      <div class="news-image loading-shimmer" style="background:linear-gradient(135deg,#1a1a2e,#16213e);display:flex;align-items:center;justify-content:center;color:#737373;">
-        <span style="font-size:48px;">🎞️</span>
-      </div>
-      <div class="news-content">
-        <span class="news-tag">Review</span>
-        <h3 class="news-title">Top 10 Must-Watch Movies of 2026 So Far</h3>
-        <p class="news-excerpt">From blockbuster hits to indie gems, our curated list of the best films that have captivated audiences and critics alike this year.</p>
-        <div class="news-meta">
-          <span class="author">👤 Critics Choice</span>
-          <span class="date">📅 July 3, 2026</span>
-        </div>
-      </div>
-    </article>
-    <article class="news-card">
-      <div class="news-image loading-shimmer" style="background:linear-gradient(135deg,#1a1a2e,#16213e);display:flex;align-items:center;justify-content:center;color:#737373;">
-        <span style="font-size:48px;">🌟</span>
-      </div>
-      <div class="news-content">
-        <span class="news-tag">Trending</span>
-        <h3 class="news-title">Why Superhero Movies Are Dominating the Box Office</h3>
-        <p class="news-excerpt">An in-depth look at the cultural phenomenon of superhero films and why audiences can't get enough of caped crusaders and cosmic adventures.</p>
-        <div class="news-meta">
-          <span class="author">👤 Box Office Analyst</span>
-          <span class="date">📅 June 30, 2026</span>
-        </div>
-      </div>
-    </article>
-  </div>
-</section>
-
-<footer class="footer">
-  <div class="footer-grid">
-    <div class="footer-section">
-      <h4>StreamFlix</h4>
-      <ul>
-        <li><a href="/">Home</a></li>
-        <li><a href="/p/about.html">About Us</a></li>
-        <li><a href="/p/contact.html">Contact</a></li>
-        <li><a href="/p/privacy-policy.html">Privacy Policy</a></li>
+    <div class="widget" id="BlogArchive1">
+      <div class="widget-title">📅 Archive</div>
+      <ul class="flat">
+        <li class="archivedate"><a href="#">March 2024 <span class="post-count">(12)</span></a></li>
+        <li class="archivedate"><a href="#">February 2024 <span class="post-count">(8)</span></a></li>
+        <li class="archivedate"><a href="#">January 2024 <span class="post-count">(15)</span></a></li>
+        <li class="archivedate"><a href="#">December 2023 <span class="post-count">(10)</span></a></li>
       </ul>
     </div>
-    <div class="footer-section">
-      <h4>Categories</h4>
-      <ul>
-        <li><a href="/search/label/Movies">Movies</a></li>
-        <li><a href="/search/label/TV%20Series">TV Series</a></li>
-        <li><a href="/search/label/News">News</a></li>
-        <li><a href="/search/label/Reviews">Reviews</a></li>
-      </ul>
-    </div>
-    <div class="footer-section">
-      <h4>Support</h4>
-      <ul>
-        <li><a href="/p/faq.html">FAQ</a></li>
-        <li><a href="/p/terms.html">Terms of Use</a></li>
-        <li><a href="/p/disclaimer.html">Disclaimer</a></li>
-        <li><a href="/p/cookie-policy.html">Cookie Policy</a></li>
-      </ul>
-    </div>
-    <div class="footer-section">
-      <h4>Follow Us</h4>
-      <ul>
-        <li><a href="#">📘 Facebook</a></li>
-        <li><a href="#">🐦 Twitter</a></li>
-        <li><a href="#">📸 Instagram</a></li>
-        <li><a href="#">▶️ YouTube</a></li>
-      </ul>
-    </div>
-  </div>
-  <div class="footer-bottom">
-    <div class="footer-logo">Stream<span>Flix</span></div>
-    <div class="copyright">&copy; 2026 StreamFlix. All rights reserved.</div>
-  </div>
-</footer>
 
-<script type="text/javascript">
-  function toggleMenu() {
-    var nav = document.getElementById('navLinks');
-    nav.classList.toggle('active');
-  }
-  window.addEventListener('scroll', function() {
-    var header = document.getElementById('header');
-    if (window.scrollY > 50) {
-      header.classList.add('scrolled');
-    } else {
-      header.classList.remove('scrolled');
-    }
-  });
-  function scrollCarousel(id, direction) {
-    var carousel = document.getElementById(id);
-    var scrollAmount = 300;
-    carousel.scrollBy({
-      left: direction * scrollAmount,
-      behavior: 'smooth'
-    });
-  }
-</script>
+    <div class="widget" id="Profile1">
+      <div class="widget-title">👾 About GameHub</div>
+      <div class="widget-content individual">
+        <div class="profile-info">
+          <dl class="profile-datablock">
+            <dt class="profile-data"><a class="profile-link g-profile" href="#" rel="author nofollow">GameHub Team</a></dt>
+            <dd class="profile-textblock">Your source for the latest gaming news, reviews, and eSports coverage. Stay informed, stay connected.</dd>
+          </dl>
+          <a class="profile-link" href="#" rel="author nofollow">View My Complete Profile</a>
+        </div>
+      </div>
+    </div>
+  </section>
 
+  <footer class="site-footer" role="contentinfo">
+    <div class="container">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <a class="footer-logo" href="/">GAME<span style="color:var(--neon-pink)">HUB</span></a>
+          <p>Your source for the latest gaming news, reviews, and eSports coverage. Stay informed, stay connected.</p>
+          <div class="footer-social">
+            <a aria-label="Twitter" href="#" rel="noopener noreferrer" target="_blank">
+              <svg viewBox="0 0 24 24"><path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z"/></svg>
+            </a>
+            <a aria-label="YouTube" href="#" rel="noopener noreferrer" target="_blank">
+              <svg viewBox="0 0 24 24"><path d="M22.54 6.42a2.78 2.78 0 00-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46A2.78 2.78 0 001.46 6.42 29 29 0 001 12a29 29 0 00.46 5.58 2.78 2.78 0 001.95 1.96C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 001.95-1.96A29 29 0 0023 12a29 29 0 00-.46-5.58z"/><polygon points="9.75,15.02 15.5,12 9.75,8.98 9.75,15.02"/></svg>
+            </a>
+            <a aria-label="Discord" href="#" rel="noopener noreferrer" target="_blank">
+              <svg viewBox="0 0 24 24"><path d="M20.32 4.37a19.79 19.79 0 00-4.93-1.53.2.2 0 00-.19.07 13.85 13.85 0 00-.9 1.86 18.43 18.43 0 00-5.4 0 13.85 13.85 0 00-.9-1.86.2.2 0 00-.19-.07 19.79 19.79 0 00-4.93 1.53.2.2 0 00-.08.07A20.48 20.48 0 001.5 17.56a.2.2 0 00.08.15 20.07 20.07 0 005.95 3.01.2.2 0 00.2-.07 14.43 14.43 0 001.2-1.94.2.2 0 00-.11-.28 13.16 13.16 0 01-1.82-.86.2.2 0 01-.07-.29l.37-.5a.2.2 0 01.25-.06 14.22 14.22 0 006.02 0 .2.2 0 01.25.06l.37.5a.2.2 0 01-.07.29 13.16 13.16 0 01-1.82.86.2.2 0 00-.11.28c.33.71.74 1.37 1.2 1.94a.2.2 0 00.2.07 20.07 20.07 0 005.95-3.01.2.2 0 00.08-.15 20.48 20.48 0 00-1.7-13.12.2.2 0 00-.08-.07zM8.08 14.57a2.07 2.07 0 010-4.14 2.07 2.07 0 010 4.14zm7.84 0a2.07 2.07 0 010-4.14 2.07 2.07 0 010 4.14z"/></svg>
+            </a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h4>Categories</h4>
+          <ul>
+            <li><a href="/search/label/News">News</a></li>
+            <li><a href="/search/label/Reviews">Reviews</a></li>
+            <li><a href="/search/label/PC">PC</a></li>
+            <li><a href="/search/label/PlayStation">PlayStation</a></li>
+            <li><a href="/search/label/Xbox">Xbox</a></li>
+            <li><a href="/search/label/Nintendo">Nintendo</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Company</h4>
+          <ul>
+            <li><a href="/p/about.html">About</a></li>
+            <li><a href="/p/contact.html">Contact</a></li>
+            <li><a href="/p/advertise.html">Advertise</a></li>
+            <li><a href="/feeds/posts/default" rel="alternate" type="application/rss+xml">RSS Feed</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Legal</h4>
+          <ul>
+            <li><a href="/p/privacy-policy.html">Privacy Policy</a></li>
+            <li><a href="/p/terms.html">Terms of Use</a></li>
+            <li><a href="/p/disclaimer.html">Disclaimer</a></li>
+            <li><a href="/p/cookie-policy.html">Cookie Policy</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© <span id="footerYear"/> GameHub. All rights reserved.</span>
+        <span>Powered by <a href="/">GameHub</a></span>
+      </div>
+    </div>
+  </footer>
+
+  <button aria-label="Back to top" class="back-to-top" id="backToTop">
+    <svg viewBox="0 0 24 24"><polyline points="18,15 12,9 6,15"/></svg>
+  </button>
+
+  <script>
+    (function() {
+      'use strict';
+
+      function startCountdown() {
+        const targetDate = new Date('2025-12-31T00:00:00').getTime();
+        const daysEl = document.getElementById('days');
+        const hoursEl = document.getElementById('hours');
+        const minutesEl = document.getElementById('minutes');
+        const secondsEl = document.getElementById('seconds');
+        if (!daysEl) return;
+        function updateTimer() {
+          const now = new Date().getTime();
+          const distance = targetDate - now;
+          if (distance > 0) {
+            daysEl.textContent = String(Math.floor(distance / (1000*60*60*24))).padStart(2,'0');
+            hoursEl.textContent = String(Math.floor((distance % (1000*60*60*24)) / (1000*60*60))).padStart(2,'0');
+            minutesEl.textContent = String(Math.floor((distance % (1000*60*60)) / (1000*60))).padStart(2,'0');
+            secondsEl.textContent = String(Math.floor((distance % (1000*60)) / 1000)).padStart(2,'0');
+          }
+        }
+        updateTimer();
+        setInterval(updateTimer, 1000);
+      }
+
+      var dmToggle = document.getElementById('darkModeToggle');
+      var iconSun = document.getElementById('iconSun');
+      var iconMoon = document.getElementById('iconMoon');
+      var html = document.documentElement;
+
+      function setTheme(dark) {
+        html.setAttribute('data-theme', dark ? 'dark' : 'light');
+        localStorage.setItem('gamehubTheme', dark ? 'dark' : 'light');
+        if (iconSun && iconMoon) {
+          iconSun.style.display = dark ? 'none' : 'block';
+          iconMoon.style.display = dark ? 'block' : 'none';
+        }
+      }
+      setTheme(true);
+
+      var header = document.getElementById('siteHeader');
+      window.addEventListener('scroll', function() {
+        if (header) header.classList.toggle('scrolled', window.scrollY > 60);
+      }, { passive: true });
+
+      var btt = document.getElementById('backToTop');
+      window.addEventListener('scroll', function() {
+        if (btt) btt.classList.toggle('visible', window.scrollY > 400);
+      }, { passive: true });
+      if (btt) {
+        btt.addEventListener('click', function() { window.scrollTo({ top: 0, behavior: 'smooth' }); });
+      }
+
+      var searchToggle = document.getElementById('searchToggle');
+      var searchOverlay = document.getElementById('searchOverlay');
+      var searchClose = document.getElementById('searchClose');
+      var searchInput = document.getElementById('searchInput');
+
+      function openSearch() {
+        if (searchOverlay) {
+          searchOverlay.classList.add('active');
+          if (searchInput) setTimeout(function() { searchInput.focus(); }, 100);
+          searchOverlay.setAttribute('aria-hidden', 'false');
+        }
+      }
+      function closeSearch() {
+        if (searchOverlay) {
+          searchOverlay.classList.remove('active');
+          searchOverlay.setAttribute('aria-hidden', 'true');
+        }
+      }
+      if (searchToggle) searchToggle.addEventListener('click', openSearch);
+      if (searchClose) searchClose.addEventListener('click', closeSearch);
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeSearch();
+      });
+
+      var navToggle = document.getElementById('navToggle');
+      var mobileNav = document.getElementById('mobileNav');
+      var mobileNavOverlay = document.getElementById('mobileNavOverlay');
+      var mobileNavClose = document.getElementById('mobileNavClose');
+
+      function openMobileNav() {
+        if (mobileNav) mobileNav.classList.add('open');
+        if (mobileNavOverlay) mobileNavOverlay.classList.add('open');
+        if (navToggle) navToggle.setAttribute('aria-expanded', 'true');
+        document.body.style.overflow = 'hidden';
+      }
+      function closeMobileNav() {
+        if (mobileNav) mobileNav.classList.remove('open');
+        if (mobileNavOverlay) mobileNavOverlay.classList.remove('open');
+        if (navToggle) navToggle.setAttribute('aria-expanded', 'false');
+        document.body.style.overflow = '';
+      }
+      if (navToggle) navToggle.addEventListener('click', openMobileNav);
+      if (mobileNavClose) mobileNavClose.addEventListener('click', closeMobileNav);
+      if (mobileNavOverlay) mobileNavOverlay.addEventListener('click', closeMobileNav);
+
+      var dateEl = document.getElementById('topbarDate');
+      if (dateEl) {
+        var now = new Date();
+        var opts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        dateEl.textContent = now.toLocaleDateString('en-US', opts);
+      }
+
+      var yearEl = document.getElementById('footerYear');
+      if (yearEl) yearEl.textContent = new Date().getFullYear();
+
+      if ('IntersectionObserver' in window) {
+        var imgs = document.querySelectorAll('img[loading="lazy"]');
+        var io = new IntersectionObserver(function(entries) {
+          entries.forEach(function(entry) {
+            if (entry.isIntersecting) { io.unobserve(entry.target); }
+          });
+        }, { rootMargin: '200px' });
+        imgs.forEach(function(img) { io.observe(img); });
+      }
+
+      if ('IntersectionObserver' in window) {
+        var animEls = document.querySelectorAll('.card, .section-head, .animate-in');
+        var aio = new IntersectionObserver(function(entries) {
+          entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('animate-in');
+              aio.unobserve(entry.target);
+            }
+          });
+        }, { threshold: 0.1 });
+        animEls.forEach(function(el) { aio.observe(el); });
+      }
+
+      startCountdown();
+    })();
+  </script>
 </body>
 </html>
