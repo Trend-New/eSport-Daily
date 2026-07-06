@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <meta content="StreamFlix - Premium Entertainment Portal" name="description"/>
+  <title>StreamFlix - Premium Entertainment Portal</title>
+
+  <style>
+    :root {
+      --bg-primary: #000000;
+      --bg-secondary: #141414;
+      --bg-card: #1a1a1a;
+      --bg-hover: #2a2a2a;
+      --accent-red: #e50914;
+      --accent-red-hover: #b20710;
+      --accent-gold: #f5c518;
+      --text-primary: #ffffff;
+      --text-secondary: #b3b3b3;
+      --text-muted: #737373;
+      --border-color: #333333;
+      --gradient-overlay: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.1) 100%);
+      --shadow-card: 0 4px 20px rgba(0,0,0,0.5);
+      --shadow-hover: 0 8px 30px rgba(229,9,20,0.3);
+      --transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; transition: var(--transition); }
+    img { max-width: 100%; height: auto; display: block; }
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg-primary); }
+    ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--accent-red); }
+
+    .header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.6) 60%, transparent 100%);
+      padding: 0 4%; height: 68px; display: flex; align-items: center; justify-content: space-between;
+      transition: background 0.4s ease;
+    }
+    .header.scrolled { background: rgba(0,0,0,0.95); backdrop-filter: blur(10px); box-shadow: 0 2px 20px rgba(0,0,0,0.5); }
+    .logo { font-size: 28px; font-weight: 900; color: var(--accent-red); letter-spacing: -1px; text-transform: uppercase; }
+    .logo span { color: var(--text-primary); }
+    .nav-links { display: flex; gap: 24px; align-items: center; }
+    .nav-links a { font-size: 14px; font-weight: 500; color: var(--text-secondary); text-transform: capitalize; position: relative; }
+    .nav-links a:hover { color: var(--text-primary); }
+    .nav-links a::after { content: ''; position: absolute; bottom: -4px; left: 0; width: 0; height: 2px; background: var(--accent-red); transition: width 0.3s ease; }
+    .nav-links a:hover::after { width: 100%; }
+    .search-container { position: relative; display: flex; align-items: center; }
+    .search-input {
+      background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 4px;
+      padding: 8px 36px 8px 12px; color: var(--text-primary); font-size: 14px; width: 240px;
+      transition: var(--transition); outline: none;
+    }
+    .search-input:focus { background: rgba(255,255,255,0.15); border-color: var(--accent-red); width: 300px; }
+    .search-input::placeholder { color: var(--text-muted); }
+    .search-btn { position: absolute; right: 8px; background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 16px; }
+    .menu-toggle { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 5px; }
+    .menu-toggle span { width: 24px; height: 2px; background: var(--text-primary); transition: var(--transition); }
+
+    .hero-banner { position: relative; width: 100%; height: 85vh; min-height: 600px; overflow: hidden; display: flex; align-items: flex-end; }
+    .hero-backdrop { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1; }
+    .hero-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--gradient-overlay); z-index: 2; }
+    .hero-content { position: relative; z-index: 3; padding: 0 4% 80px; max-width: 800px; animation: fadeInUp 0.8s ease-out; }
+    .hero-badge {
+      display: inline-block; background: var(--accent-red); color: var(--text-primary); padding: 4px 12px;
+      border-radius: var(--radius-sm); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px;
+    }
+    .hero-title { font-size: 56px; font-weight: 900; line-height: 1.1; margin-bottom: 16px; text-shadow: 2px 2px 20px rgba(0,0,0,0.8); }
+    .hero-meta { display: flex; gap: 16px; align-items: center; margin-bottom: 20px; font-size: 14px; color: var(--text-secondary); }
+    .hero-meta .rating { color: var(--accent-gold); font-weight: 700; }
+    .hero-description { font-size: 18px; line-height: 1.6; color: var(--text-secondary); margin-bottom: 28px; max-width: 600px; }
+    .hero-buttons { display: flex; gap: 12px; flex-wrap: wrap; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px; padding: 12px 28px; border-radius: var(--radius-sm);
+      font-size: 16px; font-weight: 700; cursor: pointer; transition: var(--transition); border: none; outline: none;
+    }
+    .btn-primary { background: var(--accent-red); color: var(--text-primary); }
+    .btn-primary:hover { background: var(--accent-red-hover); transform: translateY(-2px); box-shadow: var(--shadow-hover); }
+    .btn-secondary { background: rgba(255,255,255,0.15); color: var(--text-primary); backdrop-filter: blur(10px); }
+    .btn-secondary:hover { background: rgba(255,255,255,0.25); transform: translateY(-2px); }
+    .btn-icon { font-size: 20px; }
+
+    .content-section { padding: 40px 4%; position: relative; }
+    .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .section-title { font-size: 22px; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 10px; }
+    .section-title .icon { color: var(--accent-red); font-size: 24px; }
+    .see-all { font-size: 14px; color: var(--accent-red); font-weight: 600; display: flex; align-items: center; gap: 4px; }
+    .see-all:hover { color: var(--accent-red-hover); gap: 8px; }
+
+    .carousel-container { position: relative; overflow: hidden; }
+    .carousel { display: flex; gap: 16px; overflow-x: auto; scroll-behavior: smooth; scroll-snap-type: x mandatory; padding: 10px 0 20px; -webkit-overflow-scrolling: touch; }
+    .carousel::-webkit-scrollbar { display: none; }
+    .carousel-item { flex: 0 0 auto; width: 200px; scroll-snap-align: start; position: relative; border-radius: var(--radius-md); overflow: hidden; cursor: pointer; transition: var(--transition); }
+    .carousel-item:hover { transform: scale(1.08); z-index: 10; box-shadow: var(--shadow-hover); }
+    .carousel-item .poster { width: 100%; aspect-ratio: 2/3; object-fit: cover; border-radius: var(--radius-md); }
+    .carousel-item .item-info {
+      position: absolute; bottom: 0; left: 0; right: 0; padding: 60px 12px 12px;
+      background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.6) 50%, transparent 100%);
+      opacity: 0; transition: opacity 0.3s ease;
+    }
+    .carousel-item:hover .item-info { opacity: 1; }
+    .carousel-item .item-title { font-size: 14px; font-weight: 700; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .carousel-item .item-meta { font-size: 12px; color: var(--text-secondary); display: flex; gap: 8px; align-items: center; }
+    .carousel-item .item-rating { color: var(--accent-gold); font-weight: 700; }
+    .carousel-nav {
+      position: absolute; top: 50%; transform: translateY(-50%); width: 48px; height: 48px;
+      background: rgba(0,0,0,0.7); border: 2px solid rgba(255,255,255,0.3); border-radius: 50%;
+      color: var(--text-primary); font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: var(--transition); z-index: 5; opacity: 0;
+    }
+    .carousel-container:hover .carousel-nav { opacity: 1; }
+    .carousel-nav:hover { background: var(--accent-red); border-color: var(--accent-red); }
+    .carousel-nav.prev { left: 10px; }
+    .carousel-nav.next { right: 10px; }
+
+    .news-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px; }
+    .news-card { background: var(--bg-card); border-radius: var(--radius-lg); overflow: hidden; transition: var(--transition); border: 1px solid var(--border-color); }
+    .news-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-card); border-color: var(--accent-red); }
+    .news-image { width: 100%; height: 180px; object-fit: cover; }
+    .news-content { padding: 20px; }
+    .news-tag {
+      display: inline-block; background: rgba(229,9,20,0.2); color: var(--accent-red); padding: 4px 10px;
+      border-radius: var(--radius-sm); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px;
+    }
+    .news-title { font-size: 16px; font-weight: 700; line-height: 1.4; margin-bottom: 10px; color: var(--text-primary); }
+    .news-title:hover { color: var(--accent-red); }
+    .news-excerpt {
+      font-size: 14px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 16px;
+      display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .news-meta { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--text-muted); }
+    .news-meta .author { display: flex; align-items: center; gap: 6px; }
+    .news-meta .date { display: flex; align-items: center; gap: 4px; }
+
+    .post-container { max-width: 1200px; margin: 0 auto; padding: 100px 4% 40px; }
+    .post-header { margin-bottom: 30px; }
+    .post-title { font-size: 36px; font-weight: 900; line-height: 1.2; margin-bottom: 16px; }
+    .post-meta { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; color: var(--text-secondary); font-size: 14px; }
+    .post-meta .imdb-rating {
+      display: flex; align-items: center; gap: 6px; background: var(--accent-gold); color: #000; padding: 4px 10px;
+      border-radius: var(--radius-sm); font-weight: 700;
+    }
+    .post-meta .genre-tag { background: var(--bg-card); padding: 4px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); }
+    .post-thumbnail { width: 100%; max-height: 500px; object-fit: cover; border-radius: var(--radius-lg); margin-bottom: 30px; box-shadow: var(--shadow-card); }
+    .post-content { font-size: 16px; line-height: 1.8; color: var(--text-secondary); }
+    .post-content p { margin-bottom: 20px; }
+    .post-content h2, .post-content h3 { color: var(--text-primary); margin: 30px 0 16px; }
+
+    .server-buttons {
+      display: flex; gap: 12px; flex-wrap: wrap; margin: 30px 0; padding: 24px;
+      background: var(--bg-card); border-radius: var(--radius-lg); border: 1px solid var(--border-color);
+    }
+    .server-buttons .btn { padding: 14px 28px; font-size: 15px; }
+    .server-buttons .btn-server { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border: 1px solid var(--border-color); color: var(--text-primary); }
+    .server-buttons .btn-server:hover { border-color: var(--accent-red); box-shadow: 0 0 20px rgba(229,9,20,0.2); }
+    .server-buttons .btn-download { background: linear-gradient(135deg, var(--accent-red) 0%, #b20710 100%); color: var(--text-primary); }
+    .server-buttons .btn-download:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(229,9,20,0.4); }
+
+    .footer { background: var(--bg-secondary); border-top: 1px solid var(--border-color); padding: 60px 4% 30px; margin-top: 60px; }
+    .footer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 40px; margin-bottom: 40px; }
+    .footer-section h4 { font-size: 16px; font-weight: 700; margin-bottom: 20px; color: var(--text-primary); }
+    .footer-section ul { list-style: none; }
+    .footer-section ul li { margin-bottom: 12px; }
+    .footer-section ul li a { font-size: 14px; color: var(--text-secondary); transition: var(--transition); }
+    .footer-section ul li a:hover { color: var(--accent-red); padding-left: 4px; }
+    .footer-bottom { border-top: 1px solid var(--border-color); padding-top: 30px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; }
+    .footer-logo { font-size: 24px; font-weight: 900; color: var(--accent-red); }
+    .footer-logo span { color: var(--text-primary); }
+    .copyright { font-size: 13px; color: var(--text-muted); }
+
+    @media (max-width: 1024px) {
+      .hero-title { font-size: 42px; }
+      .nav-links { gap: 16px; }
+      .search-input { width: 180px; }
+      .search-input:focus { width: 220px; }
+    }
+    @media (max-width: 768px) {
+      .header { padding: 0 4%; height: 60px; }
+      .nav-links {
+        display: none; position: absolute; top: 60px; left: 0; right: 0; background: rgba(0,0,0,0.98);
+        flex-direction: column; padding: 20px; gap: 16px; border-top: 1px solid var(--border-color);
+      }
+      .nav-links.active { display: flex; }
+      .menu-toggle { display: flex; }
+      .search-container { display: none; }
+      .hero-banner { height: 70vh; min-height: 500px; }
+      .hero-title { font-size: 32px; }
+      .hero-description { font-size: 15px; }
+      .hero-buttons { flex-direction: column; }
+      .btn { width: 100%; justify-content: center; }
+      .carousel-item { width: 160px; }
+      .news-grid { grid-template-columns: 1fr; }
+      .post-title { font-size: 26px; }
+      .server-buttons { flex-direction: column; }
+      .server-buttons .btn { width: 100%; justify-content: center; }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+      .footer-bottom { flex-direction: column; text-align: center; }
+    }
+    @media (max-width: 480px) {
+      .hero-title { font-size: 26px; }
+      .section-title { font-size: 18px; }
+      .carousel-item { width: 140px; }
+      .footer-grid { grid-template-columns: 1fr; }
+    }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+    .loading-shimmer { background: linear-gradient(90deg, var(--bg-card) 25%, var(--bg-hover) 50%, var(--bg-card) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+  </style>
+</head>
+
+<body>
+
+<header class="header" id="header">
+  <a class="logo" href="/">Stream<span>Flix</span></a>
+  <nav class="nav-links" id="navLinks">
+    <a href="/">Home</a>
+    <a href="/search/label/Movies">Movies</a>
+    <a href="/search/label/TV%20Series">TV Series</a>
+    <a href="/search/label/News">News</a>
+    <a href="/search/label/Reviews">Reviews</a>
+    <a href="/p/about.html">About</a>
+  </nav>
+  <div class="search-container">
+    <form action="/search" method="get">
+      <input class="search-input" name="q" placeholder="Search movies, series..." type="text"/>
+      <button class="search-btn" type="submit">🔍</button>
+    </form>
+  </div>
+  <div class="menu-toggle" id="menuToggle" onclick="toggleMenu()">
+    <span/>
+    <span/>
+    <span/>
+  </div>
+</header>
+
+<section class="hero-banner">
+  <img alt="Avengers: Doomsday Backdrop" class="hero-backdrop" src="https://i.pinimg.com/736x/5b/df/df/5bdfdf875d40cb24a0917024a32314a9.jpg"/>
+  <div class="hero-overlay"/>
+  <div class="hero-content">
+    <span class="hero-badge">2026 Box Office Hit</span>
+    <h1 class="hero-title">Avengers: Doomsday</h1>
+    <div class="hero-meta">
+      <span class="rating">&#9733; 9.2 IMDb</span>
+      <span class="year">2026</span>
+      <span class="duration">2h 45min</span>
+      <span class="genre">Action, Sci-Fi, Superhero</span>
+    </div>
+    <p class="hero-description">
+      The Marvel Cinematic Universe reaches its epic conclusion as the Avengers face their greatest threat yet.
+      With the fate of the multiverse hanging in the balance, Earth&#39;s mightiest heroes must unite one last time
+      against an unstoppable force that threatens to unravel all of reality.
+    </p>
+    <div class="hero-buttons">
+      <a class="btn btn-primary" href="#server1">
+        <span class="btn-icon">&#9654;</span>
+        Stream Now (Server 1)
+      </a>
+      <a class="btn btn-secondary" href="https://www.youtube.com/results?search_query=avengers+doomsday+trailer" target="_blank">
+        <span class="btn-icon">&#9654;</span>
+        Watch Trailer
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="content-section">
+  <div class="section-header">
+    <h2 class="section-title">
+      <span class="icon">🍿</span>
+      Box Office Movies
+    </h2>
+    <a class="see-all" href="/search/label/Movies">See All &#8250;</a>
+  </div>
+  <div class="carousel-container">
+    <button class="carousel-nav prev" onclick="scrollCarousel('moviesCarousel', -1)">&#8249;</button>
+    <div class="carousel" id="moviesCarousel">
+      <div class="carousel-item">
+        <img alt="Spider-Man: Brand New Day" class="poster" src="https://i.pinimg.com/736x/5b/df/df/5bdfdf875d40cb24a0917024a32314a9.jpg"/>
+        <div class="item-info">
+          <div class="item-title">Spider-Man: Brand New Day</div>
+          <div class="item-meta">
+            <span class="item-rating">&#9733; 8.7</span>
+            <span>2026</span>
+            <span>Action</span>
+          </div>
+        </div>
+      </div>
+      <div class="carousel-item">
+        <img alt="Mutiny" class="poster" src="https://i.pinimg.com/736x/91/17/75/9117751636528b25a7b4687cab63572d.jpg"/>
+        <div class="item-info">
+          <div class="item-title">Mutiny</div>
+          <div class="item-meta">
+            <span class="item-rating">&#9733; 7.9</span>
+            <span>2026</span>
+            <span>Action</span>
+          </div>
+        </div>
+      </div>
+      <div class="carousel-item">
+        <img alt="Avengers: Doomsday" class="poster" src="https://i.pinimg.com/736x/5b/df/df/5bdfdf875d40cb24a0917024a32314a9.jpg"/>
+        <div class="item-info">
+          <div class="item-title">Avengers: Doomsday</div>
+          <div class="item-meta">
+            <span class="item-rating">&#9733; 9.2</span>
+            <span>2026</span>
+            <span>Superhero</span>
+          </div>
+        </div>
+      </div>
+      <div class="carousel-item">
+        <div class="poster loading-shimmer" style="background:#1a1a1a;display:flex;align-items:center;justify-content:center;color:#737373;aspect-ratio:2/3;">Coming Soon</div>
+        <div class="item-info">
+          <div class="item-title">The Batman 2</div>
+          <div class="item-meta">
+            <span class="item-rating">&#9733; TBD</span>
+            <span>2026</span>
+            <span>Action</span>
+          </div>
+        </div>
+      </div>
+      <div class="carousel-item">
+        <div class="poster loading-shimmer" style="background:#1a1a1a;display:flex;align-items:center;justify-content:center;color:#737373;aspect-ratio:2/3;">Coming Soon</div>
+        <div class="item-info">
+          <div class="item-title">Mission: Impossible 8</div>
+          <div class="item-meta">
+            <span class="item-rating">&#9733; TBD</span>
+            <span>2026</span>
+            <span>Action</span>
+          </div>
+        </div>
+      </div>
+      <div class="carousel-item">
+        <div class="poster loading-shimmer" style="background:#1a1a1a;display:flex;align-items:center;justify-content:center;color:#737373;aspect-ratio:2/3;">Coming Soon</div>
+        <div class="item-info">
+          <div class="item-title">Jurassic World 4</div>
+          <div class="item-meta">
+            <span class="item-rating">&#9733; TBD</span>
+            <span>2026</span>
+            <span>Adventure</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <button class="carousel-nav next" onclick="scrollCarousel('moviesCarousel', 1)">&#8250;</button>
+  </div>
+</section>
+
+<section class="content-section">
+  <div class="section-header">
+    <h2 class="section-title">
+      <span class="icon">📺</span>
+      Trending TV Series 2026
+    </h2>
+    <a class="see-all" href="/search/label/TV%20Series">See All &#8250;</a>
+  </div>
+  <div class="carousel-container">
+    <button class="carousel-nav prev" onclick="scrollCarousel('seriesCarousel', -1)">&#8249;</button>
+    <div class="carousel" id="seriesCarousel">
+      <div class="carousel-item">
+        <img alt="House of the Dragon Season 3" class="poster" src="https://i.pinimg.com/736x/11/f3/48/11f348dd088bc6926d5323112b6cddb5.jpg"/>
+        <div class="item-info">
+          <div class="item-title">House of the Dragon S3</div>
+          <div class="item-meta">
+            <span class="item-rating">&#9733; 8.9</span>
+            <span>2026</span>
+            <span>Fantasy</span>
+          </div>
+        </div>
+      </div>
+      <div class="carousel-item">
+        <img alt="Reacher Season 4" class="poster" src="https://i.pinimg.com/736x/69/77/8e/69778ebf35cd22018c872a088b34b682.jpg"/>
+        <div class="item-info">
+          <div class="item-title">Reacher Season 4</div>
+          <div class="item-meta">
+            <span class="item-rating">&#9733; 8.5</span>
+            <span>2026</span>
+            <span>Action</span>
+          </div>
+        </div>
+      </div>
+      <div class="carousel-item">
+        <img alt="Wednesday Season 2" class="poster" src="https://i.pinimg.com/736x/11/f3/48/11f348dd088bc6926d5323112b6cddb5.jpg"/>
+        <div class="item-info">
+          <div class="item-title">Wednesday Season 2</div>
+          <div class="item-meta">
+            <span class="item-rating">&#9733; 8.8</span>
+            <span>2026</span>
+            <span>Horror</span>
+          </div>
+        </div>
+      </div>
+      <div class="carousel-item">
+        <div class="poster loading-shimmer" style="background:#1a1a1a;display:flex;align-items:center;justify-content:center;color:#737373;aspect-ratio:2/3;">Coming Soon</div>
+        <div class="item-info">
+          <div class="item-title">Stranger Things 5</div>
+          <div class="item-meta">
+            <span class="item-rating">&#9733; TBD</span>
+            <span>2026</span>
+            <span>Sci-Fi</span>
+          </div>
+        </div>
+      </div>
+      <div class="carousel-item">
+        <div class="poster loading-shimmer" style="background:#1a1a1a;display:flex;align-items:center;justify-content:center;color:#737373;aspect-ratio:2/3;">Coming Soon</div>
+        <div class="item-info">
+          <div class="item-title">The Witcher Season 4</div>
+          <div class="item-meta">
+            <span class="item-rating">&#9733; TBD</span>
+            <span>2026</span>
+            <span>Fantasy</span>
+          </div>
+        </div>
+      </div>
+      <div class="carousel-item">
+        <div class="poster loading-shimmer" style="background:#1a1a1a;display:flex;align-items:center;justify-content:center;color:#737373;aspect-ratio:2/3;">Coming Soon</div>
+        <div class="item-info">
+          <div class="item-title">Squid Game Season 3</div>
+          <div class="item-meta">
+            <span class="item-rating">&#9733; TBD</span>
+            <span>2026</span>
+            <span>Thriller</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <button class="carousel-nav next" onclick="scrollCarousel('seriesCarousel', 1)">&#8250;</button>
+  </div>
+</section>
+
+<section class="content-section">
+  <div class="section-header">
+    <h2 class="section-title">
+      <span class="icon">📰</span>
+      Latest News &amp; Reviews
+    </h2>
+    <a class="see-all" href="/search/label/News">See All &#8250;</a>
+  </div>
+  <div class="news-grid">
+    <article class="news-card">
+      <div class="news-image loading-shimmer" style="background:linear-gradient(135deg,#1a1a2e,#16213e);display:flex;align-items:center;justify-content:center;color:#737373;">
+        <span style="font-size:48px;">🎥</span>
+      </div>
+      <div class="news-content">
+        <span class="news-tag">Box Office</span>
+        <h3 class="news-title">Avengers: Doomsday Shatters Opening Weekend Records with $380M Global Debut</h3>
+        <p class="news-excerpt">Marvel's epic conclusion dominates the worldwide box office, becoming the highest-grossing opening weekend in cinematic history and setting new benchmarks for superhero films.</p>
+        <div class="news-meta">
+          <span class="author">👤 Entertainment Weekly</span>
+          <span class="date">📅 July 2, 2026</span>
+        </div>
+      </div>
+    </article>
+    <article class="news-card">
+      <div class="news-image loading-shimmer" style="background:linear-gradient(135deg,#1a1a2e,#16213e);display:flex;align-items:center;justify-content:center;color:#737373;">
+        <span style="font-size:48px;">🎬</span>
+      </div>
+      <div class="news-content">
+        <span class="news-tag">Review</span>
+        <h3 class="news-title">Spider-Man: Brand New Day Review - A Fresh Start for the Web-Slinger</h3>
+        <p class="news-excerpt">Tom Holland returns in what critics are calling the most emotionally resonant Spider-Man film yet, blending spectacular action with genuine heart and humor.</p>
+        <div class="news-meta">
+          <span class="author">👤 Rotten Tomatoes</span>
+          <span class="date">📅 June 28, 2026</span>
+        </div>
+      </div>
+    </article>
+    <article class="news-card">
+      <div class="news-image loading-shimmer" style="background:linear-gradient(135deg,#1a1a2e,#16213e);display:flex;align-items:center;justify-content:center;color:#737373;">
+        <span style="font-size:48px;">📸</span>
+      </div>
+      <div class="news-content">
+        <span class="news-tag">Celebrity</span>
+        <h3 class="news-title">Jason Statham's Mutiny: The Action Star's Most Intense Role Yet</h3>
+        <p class="news-excerpt">In a career-defining performance, Statham delivers raw intensity in this high-seas thriller that redefines the modern action genre with practical stunts and relentless pacing.</p>
+        <div class="news-meta">
+          <span class="author">👤 Variety</span>
+          <span class="date">📅 June 25, 2026</span>
+        </div>
+      </div>
+    </article>
+    <article class="news-card">
+      <div class="news-image loading-shimmer" style="background:linear-gradient(135deg,#1a1a2e,#16213e);display:flex;align-items:center;justify-content:center;color:#737373;">
+        <span style="font-size:48px;">📺</span>
+      </div>
+      <div class="news-content">
+        <span class="news-tag">TV Series</span>
+        <h3 class="news-title">House of the Dragon Season 3: The Dance of Dragons Intensifies</h3>
+        <p class="news-excerpt">HBO's epic fantasy returns with bigger battles, deeper political intrigue, and shocking twists that will forever change the Targaryen dynasty's fate.</p>
+        <div class="news-meta">
+          <span class="author">👤 The Hollywood Reporter</span>
+          <span class="date">📅 July 1, 2026</span>
+        </div>
+      </div>
+    </article>
+  </div>
+</section>
+
+<section class="content-section" style="padding:40px 4%;">
+  <div class="section-header">
+    <h2 class="section-title">
+      <span class="icon">⭐</span>
+      Recent Blog Posts
+    </h2>
+    <a class="see-all" href="/">See All &#8250;</a>
+  </div>
+  <div class="news-grid">
+    <article class="news-card">
+      <div class="news-image loading-shimmer" style="background:linear-gradient(135deg,#1a1a2e,#16213e);display:flex;align-items:center;justify-content:center;color:#737373;">
+        <span style="font-size:48px;">📝</span>
+      </div>
+      <div class="news-content">
+        <span class="news-tag">Blog</span>
+        <h3 class="news-title">The Future of Cinema: How AI is Changing Storytelling</h3>
+        <p class="news-excerpt">Exploring the intersection of artificial intelligence and filmmaking, and how new technologies are reshaping the way stories are told on screen.</p>
+        <div class="news-meta">
+          <span class="author">👤 StreamFlix Team</span>
+          <span class="date">📅 July 5, 2026</span>
+        </div>
+      </div>
+    </article>
+    <article class="news-card">
+      <div class="news-image loading-shimmer" style="background:linear-gradient(135deg,#1a1a2e,#16213e);display:flex;align-items:center;justify-content:center;color:#737373;">
+        <span style="font-size:48px;">🎞️</span>
+      </div>
+      <div class="news-content">
+        <span class="news-tag">Review</span>
+        <h3 class="news-title">Top 10 Must-Watch Movies of 2026 So Far</h3>
+        <p class="news-excerpt">From blockbuster hits to indie gems, our curated list of the best films that have captivated audiences and critics alike this year.</p>
+        <div class="news-meta">
+          <span class="author">👤 Critics Choice</span>
+          <span class="date">📅 July 3, 2026</span>
+        </div>
+      </div>
+    </article>
+    <article class="news-card">
+      <div class="news-image loading-shimmer" style="background:linear-gradient(135deg,#1a1a2e,#16213e);display:flex;align-items:center;justify-content:center;color:#737373;">
+        <span style="font-size:48px;">🌟</span>
+      </div>
+      <div class="news-content">
+        <span class="news-tag">Trending</span>
+        <h3 class="news-title">Why Superhero Movies Are Dominating the Box Office</h3>
+        <p class="news-excerpt">An in-depth look at the cultural phenomenon of superhero films and why audiences can't get enough of caped crusaders and cosmic adventures.</p>
+        <div class="news-meta">
+          <span class="author">👤 Box Office Analyst</span>
+          <span class="date">📅 June 30, 2026</span>
+        </div>
+      </div>
+    </article>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="footer-grid">
+    <div class="footer-section">
+      <h4>StreamFlix</h4>
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/p/about.html">About Us</a></li>
+        <li><a href="/p/contact.html">Contact</a></li>
+        <li><a href="/p/privacy-policy.html">Privacy Policy</a></li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h4>Categories</h4>
+      <ul>
+        <li><a href="/search/label/Movies">Movies</a></li>
+        <li><a href="/search/label/TV%20Series">TV Series</a></li>
+        <li><a href="/search/label/News">News</a></li>
+        <li><a href="/search/label/Reviews">Reviews</a></li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h4>Support</h4>
+      <ul>
+        <li><a href="/p/faq.html">FAQ</a></li>
+        <li><a href="/p/terms.html">Terms of Use</a></li>
+        <li><a href="/p/disclaimer.html">Disclaimer</a></li>
+        <li><a href="/p/cookie-policy.html">Cookie Policy</a></li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h4>Follow Us</h4>
+      <ul>
+        <li><a href="#">📘 Facebook</a></li>
+        <li><a href="#">🐦 Twitter</a></li>
+        <li><a href="#">📸 Instagram</a></li>
+        <li><a href="#">▶️ YouTube</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="footer-logo">Stream<span>Flix</span></div>
+    <div class="copyright">&copy; 2026 StreamFlix. All rights reserved.</div>
+  </div>
+</footer>
+
+<script type="text/javascript">
+  function toggleMenu() {
+    var nav = document.getElementById('navLinks');
+    nav.classList.toggle('active');
+  }
+  window.addEventListener('scroll', function() {
+    var header = document.getElementById('header');
+    if (window.scrollY > 50) {
+      header.classList.add('scrolled');
+    } else {
+      header.classList.remove('scrolled');
+    }
+  });
+  function scrollCarousel(id, direction) {
+    var carousel = document.getElementById(id);
+    var scrollAmount = 300;
+    carousel.scrollBy({
+      left: direction * scrollAmount,
+      behavior: 'smooth'
+    });
+  }
+</script>
+
+</body>
+</html>
