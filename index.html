@@ -291,33 +291,6 @@
 </head>
 
 <body>
-  <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@graph": [
-        {
-          "@type": "Organization",
-          "@id": "#organization",
-          "name": "GameHub",
-          "url": "/",
-          "logo": { "@type": "ImageObject", "url": "/favicon.ico" }
-        },
-        {
-          "@type": "WebSite",
-          "@id": "#website",
-          "url": "/",
-          "name": "GameHub",
-          "publisher": {"@id": "#organization"},
-          "potentialAction": {
-            "@type": "SearchAction",
-            "target": "/search?q={search_term_string}",
-            "query-input": "required name=search_term_string"
-          }
-        }
-      ]
-    }
-  </script>
-
   <div aria-label="Search" class="search-overlay" id="searchOverlay" role="dialog">
     <button aria-label="Close search" class="search-close" id="searchClose">&#10005;</button>
     <form action="/search" method="get" role="search">
@@ -328,7 +301,8 @@
     </form>
   </div>
 
-  <div class="mobile-nav-overlay" id="mobileNavOverlay"/>
+  <div class="mobile-nav-overlay" id="mobileNavOverlay"></div>
+  
   <nav aria-label="Mobile navigation" class="mobile-nav" id="mobileNav">
     <div class="mobile-nav-close">
       <button aria-label="Close menu" class="btn-icon" id="mobileNavClose">
@@ -338,18 +312,18 @@
     <a class="mobile-nav-logo" href="/">GAME<span style="color:var(--neon-pink)">HUB</span></a>
     <ul>
       <li><a href="/">Home</a></li>
-      <li><a href="/search/label/News">News</a></li>
-      <li><a href="/search/label/Reviews">Reviews</a></li>
-      <li><a href="/search/label/PC">PC</a></li>
-      <li><a href="/search/label/PlayStation">PlayStation</a></li>
-      <li><a href="/search/label/Xbox">Xbox</a></li>
-      <li><a href="/search/label/Nintendo">Nintendo</a></li>
-      <li><a href="/p/about.html">About</a></li>
+      <li><a href="/news">News</a></li>
+      <li><a href="/reviews">Reviews</a></li>
+      <li><a href="/pc">PC</a></li>
+      <li><a href="/playstation">PlayStation</a></li>
+      <li><a href="/xbox">Xbox</a></li>
+      <li><a href="/nintendo">Nintendo</a></li>
+      <li><a href="/about.html">About</a></li>
     </ul>
   </nav>
 
   <div class="topbar" role="banner">
-    <div class="topbar__date" id="topbarDate"/>
+    <div class="topbar__date" id="topbarDate"></div>
     <div class="topbar__social">
       <a aria-label="Twitter" href="#" rel="noopener noreferrer" target="_blank">Twitter</a>
       <a aria-label="YouTube" href="#" rel="noopener noreferrer" target="_blank">YouTube</a>
@@ -360,7 +334,7 @@
   <header class="site-header" id="siteHeader" role="banner">
     <div class="header-inner">
       <div class="header-left">
-        <button aria-expanded="false" aria-label="Open menu" class="nav-toggle" id="navToggle"><span/><span/><span/></button>
+        <button aria-expanded="false" aria-label="Open menu" class="nav-toggle" id="navToggle"><span></span><span></span><span></span></button>
         <button aria-label="Open search" class="btn-icon" id="searchToggle">
           <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" x2="22" y1="16.5" y2="22"/></svg>
         </button>
@@ -379,241 +353,214 @@
       <ul class="nav-list">
         <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
         <li class="nav-item">
-          <a class="nav-link" href="/search/label/News">News</a>
+          <a class="nav-link" href="/news">News</a>
           <div class="mega-menu">
-            <a href="/search/label/Breaking">Breaking</a>
-            <a href="/search/label/Updates">Updates</a>
-            <a href="/search/label/Trailers">Trailers</a>
+            <a href="/breaking">Breaking</a>
+            <a href="/updates">Updates</a>
+            <a href="/trailers">Trailers</a>
           </div>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="/search/label/Reviews">Reviews</a>
+          <a class="nav-link" href="/reviews">Reviews</a>
           <div class="mega-menu">
-            <a href="/search/label/Reviews">All Reviews</a>
-            <a href="/search/label/PC">PC</a>
-            <a href="/search/label/PlayStation">PlayStation</a>
-            <a href="/search/label/Xbox">Xbox</a>
-            <a href="/search/label/Nintendo">Nintendo</a>
+            <a href="/reviews">All Reviews</a>
+            <a href="/pc">PC</a>
+            <a href="/playstation">PlayStation</a>
+            <a href="/xbox">Xbox</a>
+            <a href="/nintendo">Nintendo</a>
           </div>
         </li>
-        <li class="nav-item"><a class="nav-link" href="/search/label/PC">PC</a></li>
-        <li class="nav-item"><a class="nav-link" href="/search/label/PlayStation">PlayStation</a></li>
-        <li class="nav-item"><a class="nav-link" href="/search/label/Xbox">Xbox</a></li>
-        <li class="nav-item"><a class="nav-link" href="/search/label/Nintendo">Nintendo</a></li>
-        <li class="nav-item"><a class="nav-link" href="/p/about.html">About</a></li>
+        <li class="nav-item"><a class="nav-link" href="/pc">PC</a></li>
+        <li class="nav-item"><a class="nav-link" href="/playstation">PlayStation</a></li>
+        <li class="nav-item"><a class="nav-link" href="/xbox">Xbox</a></li>
+        <li class="nav-item"><a class="nav-link" href="/nintendo">Nintendo</a></li>
+        <li class="nav-item"><a class="nav-link" href="/about.html">About</a></li>
       </ul>
     </nav>
   </header>
 
   <main id="main-content" role="main" tabindex="-1">
-    <section class="main" id="main">
-      <div class="widget Blog" id="Blog1">
-        <div class="widget-settings">
-          <div class="widget-setting" name="showDateHeader">false</div>
-          <div class="widget-setting" name="style.textcolor">#ffffff</div>
-          <div class="widget-setting" name="showShareButtons">true</div>
-          <div class="widget-setting" name="showCommentLink">true</div>
-          <div class="widget-setting" name="style.urlcolor">#ffffff</div>
-          <div class="widget-setting" name="showAuthor">true</div>
-          <div class="widget-setting" name="style.linkcolor">#ffffff</div>
-          <div class="widget-setting" name="style.unittype">TextAndImage</div>
-          <div class="widget-setting" name="style.bgcolor">#ffffff</div>
-          <div class="widget-setting" name="timestampLabel"></div>
-          <div class="widget-setting" name="reactionsLabel"></div>
-          <div class="widget-setting" name="showAuthorProfile">true</div>
-          <div class="widget-setting" name="style.layout">1x1</div>
-          <div class="widget-setting" name="showLabels">true</div>
-          <div class="widget-setting" name="showLocation">true</div>
-          <div class="widget-setting" name="postLabelsLabel"></div>
-          <div class="widget-setting" name="showTimestamp">true</div>
-          <div class="widget-setting" name="postsPerAd">1</div>
-          <div class="widget-setting" name="showBacklinks">false</div>
-          <div class="widget-setting" name="style.bordercolor">#ffffff</div>
-          <div class="widget-setting" name="showInlineAds">false</div>
-          <div class="widget-setting" name="showReactions">false</div>
-        </div>
-
-        <div class="container">
-          <section aria-label="Featured stories" class="hero">
-            <article class="hero__feature scanline">
-              <img alt="Zelda Ocarina of Time Remake" height="500" loading="eager" src="https://i.pinimg.com/1200x/27/88/89/278889c6daee81300a833351576c244a.jpg" width="800"/>
-              <div class="hero__feature-overlay">
-                <span class="badge badge--cyan">Breaking News</span>
-                <h1>Zelda: Ocarina of Time Remake Announced for Switch 2</h1>
-                <p>Nintendo reveals the most anticipated remake of the classic game with stunning new visuals.</p>
-              </div>
-            </article>
-            <div class="hero__sidebar">
-              <article class="hero__secondary scanline">
-                <img alt="Resident Evil Code Veronica" height="250" loading="eager" src="https://i.pinimg.com/1200x/03/48/7c/03487c1cb2bc0db537e5549800679ea1.jpg" width="800"/>
-                <div class="hero__secondary-overlay">
-                  <span class="badge badge--orange">Review</span>
-                  <h2>Resident Evil: Code Veronica Remake Announced</h2>
-                </div>
-              </article>
-              <article class="hero__secondary scanline">
-                <img alt="GTA 6 news" height="250" loading="eager" src="https://i.pinimg.com/736x/9b/db/38/9bdb38262b7d1182a726fb018884485d.jpg" width="800"/>
-                <div class="hero__secondary-overlay">
-                  <span class="badge badge--outline">eSports</span>
-                  <h2>GTA 6: Vice City Returns in 2025</h2>
-                </div>
-              </article>
+    <div class="container">
+      <section aria-label="Featured stories" class="hero">
+        <article class="hero__feature scanline">
+          <img alt="Zelda Ocarina of Time Remake" height="500" loading="eager" src="https://i.pinimg.com/1200x/27/88/89/278889c6daee81300a833351576c244a.jpg" width="800"/>
+          <div class="hero__feature-overlay">
+            <span class="badge badge--cyan">Breaking News</span>
+            <h1>Zelda: Ocarina of Time Remake Announced for Switch 2</h1>
+            <p>Nintendo reveals the most anticipated remake of the classic game with stunning new visuals.</p>
+          </div>
+        </article>
+        <div class="hero__sidebar">
+          <article class="hero__secondary scanline">
+            <img alt="Resident Evil Code Veronica" height="250" loading="eager" src="https://i.pinimg.com/1200x/03/48/7c/03487c1cb2bc0db537e5549800679ea1.jpg" width="800"/>
+            <div class="hero__secondary-overlay">
+              <span class="badge badge--orange">Review</span>
+              <h2>Resident Evil: Code Veronica Remake Announced</h2>
             </div>
-          </section>
-
-          <section class="countdown-section">
-            <h2>GTA 6 <span class="neon-text-pink">Countdown</span></h2>
-            <p>The most anticipated release of the year</p>
-            <div class="countdown-grid" id="countdownTimer">
-              <div class="countdown-item"><div class="number" id="days">--</div><div class="label">Days</div></div>
-              <div class="countdown-item"><div class="number" id="hours">--</div><div class="label">Hours</div></div>
-              <div class="countdown-item"><div class="number" id="minutes">--</div><div class="label">Minutes</div></div>
-              <div class="countdown-item"><div class="number" id="seconds">--</div><div class="label">Seconds</div></div>
+          </article>
+          <article class="hero__secondary scanline">
+            <img alt="GTA 6 news" height="250" loading="eager" src="https://i.pinimg.com/736x/9b/db/38/9bdb38262b7d1182a726fb018884485d.jpg" width="800"/>
+            <div class="hero__secondary-overlay">
+              <span class="badge badge--outline">eSports</span>
+              <h2>GTA 6: Vice City Returns in 2025</h2>
             </div>
-          </section>
-
-          <div style="display:flex;flex-wrap:wrap;gap:0.5rem;padding:0.5rem 0 1rem">
-            <a class="filter-btn active" href="/search/label/News">🎮 All News</a>
-            <a class="filter-btn" href="/search/label/Nintendo">🔴 Nintendo</a>
-            <a class="filter-btn" href="/search/label/PlayStation">🔵 PlayStation</a>
-            <a class="filter-btn" href="/search/label/Xbox">🟢 Xbox</a>
-            <a class="filter-btn" href="/search/label/PC">🖥️ PC</a>
-            <a class="filter-btn" href="/search/label/Reviews">⭐ Reviews</a>
-          </div>
-
-          <div class="section-head">
-            <div class="section-head__left"><h2>Latest News</h2><span class="badge">Live</span></div>
-            <a class="view-all" href="/search/label/News">View All →</a>
-          </div>
-          <div class="grid-3" style="margin-bottom:1.5rem">
-            <article class="card animate-in">
-              <div class="card__img">
-                <a href="#" tabindex="-1">
-                  <img alt="Game News" src="https://i.pinimg.com/736x/27/88/89/278889c6daee81300a833351576c244a.jpg" height="200" loading="lazy" width="400"/>
-                </a>
-                <span class="badge">New</span>
-              </div>
-              <div class="card__body">
-                <span class="platform-tag platform-tag--zelda">Nintendo</span>
-                <h3 class="card__title"><a href="#">Zelda: Ocarina of Time Remake Announced</a></h3>
-                <p class="card__excerpt">Nintendo reveals the most anticipated remake of the classic game with stunning new visuals.</p>
-                <div class="card__meta"><time datetime="2024-03-15">March 15, 2024</time><span>•</span><span>GameHub Staff</span></div>
-              </div>
-            </article>
-            <article class="card animate-in">
-              <div class="card__img">
-                <a href="#" tabindex="-1">
-                  <img alt="Game News" src="https://i.pinimg.com/736x/03/48/7c/03487c1cb2bc0db537e5549800679ea1.jpg" height="200" loading="lazy" width="400"/>
-                </a>
-                <span class="badge">New</span>
-              </div>
-              <div class="card__body">
-                <span class="platform-tag platform-tag--ps">PlayStation</span>
-                <h3 class="card__title"><a href="#">Resident Evil: Code Veronica Remake Announced</a></h3>
-                <p class="card__excerpt">Capcom brings back the classic survival horror with stunning visuals and modern gameplay.</p>
-                <div class="card__meta"><time datetime="2024-03-14">March 14, 2024</time><span>•</span><span>GameHub Staff</span></div>
-              </div>
-            </article>
-            <article class="card animate-in">
-              <div class="card__img">
-                <a href="#" tabindex="-1">
-                  <img alt="Game News" src="https://i.pinimg.com/736x/9b/db/38/9bdb38262b7d1182a726fb018884485d.jpg" height="200" loading="lazy" width="400"/>
-                </a>
-                <span class="badge">New</span>
-              </div>
-              <div class="card__body">
-                <span class="platform-tag platform-tag--pc">PC</span>
-                <h3 class="card__title"><a href="#">GTA 6: Vice City Returns in 2025</a></h3>
-                <p class="card__excerpt">Rockstar Games announces the next installment in the Grand Theft Auto series.</p>
-                <div class="card__meta"><time datetime="2024-03-13">March 13, 2024</time><span>•</span><span>GameHub Staff</span></div>
-              </div>
-            </article>
-            <article class="card animate-in">
-              <div class="card__img">
-                <a href="#" tabindex="-1">
-                  <img alt="Game News" src="https://i.pinimg.com/736x/66/ef/cc/66efcc8e1705091f728cd815236e690a.jpg" height="200" loading="lazy" width="400"/>
-                </a>
-                <span class="badge">Review</span>
-              </div>
-              <div class="card__body">
-                <span class="platform-tag platform-tag--switch">Nintendo</span>
-                <h3 class="card__title"><a href="#">Ocarina of Time Remake Review – A Masterpiece Reborn</a></h3>
-                <p class="card__excerpt">Nintendo delivers an emotional, visually stunning remake that redefines the classic.</p>
-                <div class="card__meta"><time datetime="2024-03-12">March 12, 2024</time><span>•</span><span>GameHub Staff</span></div>
-              </div>
-            </article>
-            <article class="card animate-in">
-              <div class="card__img">
-                <a href="#" tabindex="-1">
-                  <img alt="Game News" src="https://i.pinimg.com/736x/ce/d6/95/ced695970209d44d8ef013aa8d3f9cf6.jpg" height="200" loading="lazy" width="400"/>
-                </a>
-                <span class="badge">Review</span>
-              </div>
-              <div class="card__body">
-                <span class="platform-tag platform-tag--ps">PlayStation</span>
-                <h3 class="card__title"><a href="#">Resident Evil: Code Veronica Remake Review</a></h3>
-                <p class="card__excerpt">Capcom brings back the classic survival horror with stunning visuals and modern gameplay.</p>
-                <div class="card__meta"><time datetime="2024-03-11">March 11, 2024</time><span>•</span><span>GameHub Staff</span></div>
-              </div>
-            </article>
-            <article class="card animate-in">
-              <div class="card__img">
-                <a href="#" tabindex="-1">
-                  <img alt="Game News" src="https://i.pinimg.com/736x/00/a8/e4/00a8e4a3edf9937c186dbecd009fd48d.jpg" height="200" loading="lazy" width="400"/>
-                </a>
-                <span class="badge">News</span>
-              </div>
-              <div class="card__body">
-                <span class="platform-tag platform-tag--zelda">Nintendo</span>
-                <h3 class="card__title"><a href="#">Nintendo Direct: Biggest Announcements</a></h3>
-                <p class="card__excerpt">Nintendo reveals a slew of new games and updates in their latest Direct presentation.</p>
-                <div class="card__meta"><time datetime="2024-03-10">March 10, 2024</time><span>•</span><span>GameHub Staff</span></div>
-              </div>
-            </article>
-          </div>
-
-          <div class="section-head">
-            <div class="section-head__left"><h2>Featured Reviews</h2><span class="badge badge--orange">Top Rated</span></div>
-            <a class="view-all" href="/search/label/Reviews">All Reviews →</a>
-          </div>
-          <div class="grid-2" style="margin-bottom:1.5rem">
-            <article class="card glow-card animate-in">
-              <div class="card__img">
-                <img alt="Zelda Ocarina of Time" height="250" loading="lazy" src="https://i.pinimg.com/736x/66/ef/cc/66efcc8e1705091f728cd815236e690a.jpg" width="500"/>
-                <span class="badge">9.8/10</span>
-              </div>
-              <div class="card__body">
-                <span class="platform-tag platform-tag--switch">Nintendo Switch 2</span>
-                <h3 class="card__title"><a href="/search/label/Reviews">Ocarina of Time Remake — A Masterpiece Reborn</a></h3>
-                <p class="card__excerpt">Nintendo delivers an emotional, visually stunning remake that redefines the classic.</p>
-                <div class="card__meta"><span>March 2024</span><span>•</span><span>By GameHub Staff</span></div>
-              </div>
-            </article>
-            <article class="card glow-card animate-in">
-              <div class="card__img">
-                <img alt="Resident Evil Code Veronica" height="250" loading="lazy" src="https://i.pinimg.com/736x/ce/d6/95/ced695970209d44d8ef013aa8d3f9cf6.jpg" width="500"/>
-                <span class="badge">9.0/10</span>
-              </div>
-              <div class="card__body">
-                <span class="platform-tag platform-tag--ps">PlayStation 5</span>
-                <h3 class="card__title"><a href="/search/label/Reviews">Resident Evil: Code Veronica Remake Review</a></h3>
-                <p class="card__excerpt">Capcom brings back the classic survival horror with stunning visuals and modern gameplay.</p>
-                <div class="card__meta"><span>February 2024</span><span>•</span><span>By GameHub Staff</span></div>
-              </div>
-            </article>
-          </div>
-
-          <section class="newsletter-section">
-            <h2>Get the Latest Gaming News</h2>
-            <p>Subscribe to our newsletter for daily updates, reviews, and exclusive interviews.</p>
-            <form action="#" class="newsletter-form" method="post">
-              <input aria-label="Your email" name="email" placeholder="Enter your email address" required="" type="email"/>
-              <button type="submit">Subscribe</button>
-            </form>
-          </section>
+          </article>
         </div>
+      </section>
+
+      <section class="countdown-section">
+        <h2>GTA 6 <span class="neon-text-pink">Countdown</span></h2>
+        <p>The most anticipated release of the year</p>
+        <div class="countdown-grid" id="countdownTimer">
+          <div class="countdown-item"><div class="number" id="days">--</div><div class="label">Days</div></div>
+          <div class="countdown-item"><div class="number" id="hours">--</div><div class="label">Hours</div></div>
+          <div class="countdown-item"><div class="number" id="minutes">--</div><div class="label">Minutes</div></div>
+          <div class="countdown-item"><div class="number" id="seconds">--</div><div class="label">Seconds</div></div>
+        </div>
+      </section>
+
+      <div style="display:flex;flex-wrap:wrap;gap:0.5rem;padding:0.5rem 0 1rem">
+        <a class="filter-btn active" href="/news">🎮 All News</a>
+        <a class="filter-btn" href="/nintendo">🔴 Nintendo</a>
+        <a class="filter-btn" href="/playstation">🔵 PlayStation</a>
+        <a class="filter-btn" href="/xbox">🟢 Xbox</a>
+        <a class="filter-btn" href="/pc">🖥️ PC</a>
+        <a class="filter-btn" href="/reviews">⭐ Reviews</a>
       </div>
-    </section>
+
+      <div class="section-head">
+        <div class="section-head__left"><h2>Latest News</h2><span class="badge">Live</span></div>
+        <a class="view-all" href="/news">View All →</a>
+      </div>
+      
+      <div class="grid-3" style="margin-bottom:1.5rem">
+        <article class="card animate-in">
+          <div class="card__img">
+            <a href="#" tabindex="-1">
+              <img alt="Game News" src="https://i.pinimg.com/736x/27/88/89/278889c6daee81300a833351576c244a.jpg" height="200" loading="lazy" width="400"/>
+            </a>
+            <span class="badge">New</span>
+          </div>
+          <div class="card__body">
+            <span class="platform-tag platform-tag--zelda">Nintendo</span>
+            <h3 class="card__title"><a href="#">Zelda: Ocarina of Time Remake Announced</a></h3>
+            <p class="card__excerpt">Nintendo reveals the most anticipated remake of the classic game with stunning new visuals.</p>
+            <div class="card__meta"><time datetime="2024-03-15">March 15, 2024</time><span>•</span><span>GameHub Staff</span></div>
+          </div>
+        </article>
+        <article class="card animate-in">
+          <div class="card__img">
+            <a href="#" tabindex="-1">
+              <img alt="Game News" src="https://i.pinimg.com/736x/03/48/7c/03487c1cb2bc0db537e5549800679ea1.jpg" height="200" loading="lazy" width="400"/>
+            </a>
+            <span class="badge">New</span>
+          </div>
+          <div class="card__body">
+            <span class="platform-tag platform-tag--ps">PlayStation</span>
+            <h3 class="card__title"><a href="#">Resident Evil: Code Veronica Remake Announced</a></h3>
+            <p class="card__excerpt">Capcom brings back the classic survival horror with stunning visuals and modern gameplay.</p>
+            <div class="card__meta"><time datetime="2024-03-14">March 14, 2024</time><span>•</span><span>GameHub Staff</span></div>
+          </div>
+        </article>
+        <article class="card animate-in">
+          <div class="card__img">
+            <a href="#" tabindex="-1">
+              <img alt="Game News" src="https://i.pinimg.com/736x/9b/db/38/9bdb38262b7d1182a726fb018884485d.jpg" height="200" loading="lazy" width="400"/>
+            </a>
+            <span class="badge">New</span>
+          </div>
+          <div class="card__body">
+            <span class="platform-tag platform-tag--pc">PC</span>
+            <h3 class="card__title"><a href="#">GTA 6: Vice City Returns in 2025</a></h3>
+            <p class="card__excerpt">Rockstar Games announces the next installment in the Grand Theft Auto series.</p>
+            <div class="card__meta"><time datetime="2024-03-13">March 13, 2024</time><span>•</span><span>GameHub Staff</span></div>
+          </div>
+        </article>
+        <article class="card animate-in">
+          <div class="card__img">
+            <a href="#" tabindex="-1">
+              <img alt="Game News" src="https://i.pinimg.com/736x/66/ef/cc/66efcc8e1705091f728cd815236e690a.jpg" height="200" loading="lazy" width="400"/>
+            </a>
+            <span class="badge">Review</span>
+          </div>
+          <div class="card__body">
+            <span class="platform-tag platform-tag--switch">Nintendo</span>
+            <h3 class="card__title"><a href="#">Ocarina of Time Remake Review – A Masterpiece Reborn</a></h3>
+            <p class="card__excerpt">Nintendo delivers an emotional, visually stunning remake that redefines the classic.</p>
+            <div class="card__meta"><time datetime="2024-03-12">March 12, 2024</time><span>•</span><span>GameHub Staff</span></div>
+          </div>
+        </article>
+        <article class="card animate-in">
+          <div class="card__img">
+            <a href="#" tabindex="-1">
+              <img alt="Game News" src="https://i.pinimg.com/736x/ce/d6/95/ced695970209d44d8ef013aa8d3f9cf6.jpg" height="200" loading="lazy" width="400"/>
+            </a>
+            <span class="badge">Review</span>
+          </div>
+          <div class="card__body">
+            <span class="platform-tag platform-tag--ps">PlayStation</span>
+            <h3 class="card__title"><a href="#">Resident Evil: Code Veronica Remake Review</a></h3>
+            <p class="card__excerpt">Capcom brings back the classic survival horror with stunning visuals and modern gameplay.</p>
+            <div class="card__meta"><time datetime="2024-03-11">March 11, 2024</time><span>•</span><span>GameHub Staff</span></div>
+          </div>
+        </article>
+        <article class="card animate-in">
+          <div class="card__img">
+            <a href="#" tabindex="-1">
+              <img alt="Game News" src="https://i.pinimg.com/736x/00/a8/e4/00a8e4a3edf9937c186dbecd009fd48d.jpg" height="200" loading="lazy" width="400"/>
+            </a>
+            <span class="badge">News</span>
+          </div>
+          <div class="card__body">
+            <span class="platform-tag platform-tag--zelda">Nintendo</span>
+            <h3 class="card__title"><a href="#">Nintendo Direct: Biggest Announcements</a></h3>
+            <p class="card__excerpt">Nintendo reveals a slew of new games and updates in their latest Direct presentation.</p>
+            <div class="card__meta"><time datetime="2024-03-10">March 10, 2024</time><span>•</span><span>GameHub Staff</span></div>
+          </div>
+        </article>
+      </div>
+
+      <div class="section-head">
+        <div class="section-head__left"><h2>Featured Reviews</h2><span class="badge badge--orange">Top Rated</span></div>
+        <a class="view-all" href="/reviews">All Reviews →</a>
+      </div>
+      
+      <div class="grid-2" style="margin-bottom:1.5rem">
+        <article class="card glow-card animate-in">
+          <div class="card__img">
+            <img alt="Zelda Ocarina of Time" height="250" loading="lazy" src="https://i.pinimg.com/736x/66/ef/cc/66efcc8e1705091f728cd815236e690a.jpg" width="500"/>
+            <span class="badge">9.8/10</span>
+          </div>
+          <div class="card__body">
+            <span class="platform-tag platform-tag--switch">Nintendo Switch 2</span>
+            <h3 class="card__title"><a href="/reviews">Ocarina of Time Remake — A Masterpiece Reborn</a></h3>
+            <p class="card__excerpt">Nintendo delivers an emotional, visually stunning remake that redefines the classic.</p>
+            <div class="card__meta"><span>March 2024</span><span>•</span><span>By GameHub Staff</span></div>
+          </div>
+        </article>
+        <article class="card glow-card animate-in">
+          <div class="card__img">
+            <img alt="Resident Evil Code Veronica" height="250" loading="lazy" src="https://i.pinimg.com/736x/ce/d6/95/ced695970209d44d8ef013aa8d3f9cf6.jpg" width="500"/>
+            <span class="badge">9.0/10</span>
+          </div>
+          <div class="card__body">
+            <span class="platform-tag platform-tag--ps">PlayStation 5</span>
+            <h3 class="card__title"><a href="/reviews">Resident Evil: Code Veronica Remake Review</a></h3>
+            <p class="card__excerpt">Capcom brings back the classic survival horror with stunning visuals and modern gameplay.</p>
+            <div class="card__meta"><span>February 2024</span><span>•</span><span>By GameHub Staff</span></div>
+          </div>
+        </article>
+      </div>
+
+      <section class="newsletter-section">
+        <h2>Get the Latest Gaming News</h2>
+        <p>Subscribe to our newsletter for daily updates, reviews, and exclusive interviews.</p>
+        <form action="#" class="newsletter-form" method="post">
+          <input aria-label="Your email" name="email" placeholder="Enter your email address" required="" type="email"/>
+          <button type="submit">Subscribe</button>
+        </form>
+      </section>
+    </div>
   </main>
 
   <section class="sidebar-section" id="sidebar">
@@ -631,16 +578,16 @@
     <div class="widget" id="Label1">
       <div class="widget-title">🏷️ Platforms &amp; Tags</div>
       <div class="tag-cloud">
-        <a href="/search/label/PC">PC</a>
-        <a href="/search/label/PlayStation">PlayStation</a>
-        <a href="/search/label/Xbox">Xbox</a>
-        <a href="/search/label/Nintendo">Nintendo</a>
-        <a href="/search/label/News">News</a>
-        <a href="/search/label/Reviews">Reviews</a>
-        <a href="/search/label/Action">Action</a>
-        <a href="/search/label/RPG">RPG</a>
-        <a href="/search/label/Strategy">Strategy</a>
-        <a href="/search/label/eSports">eSports</a>
+        <a href="/pc">PC</a>
+        <a href="/playstation">PlayStation</a>
+        <a href="/xbox">Xbox</a>
+        <a href="/nintendo">Nintendo</a>
+        <a href="/news">News</a>
+        <a href="/reviews">Reviews</a>
+        <a href="/action">Action</a>
+        <a href="/rpg">RPG</a>
+        <a href="/strategy">Strategy</a>
+        <a href="/esports">eSports</a>
       </div>
     </div>
 
@@ -689,35 +636,35 @@
         <div class="footer-col">
           <h4>Categories</h4>
           <ul>
-            <li><a href="/search/label/News">News</a></li>
-            <li><a href="/search/label/Reviews">Reviews</a></li>
-            <li><a href="/search/label/PC">PC</a></li>
-            <li><a href="/search/label/PlayStation">PlayStation</a></li>
-            <li><a href="/search/label/Xbox">Xbox</a></li>
-            <li><a href="/search/label/Nintendo">Nintendo</a></li>
+            <li><a href="/news">News</a></li>
+            <li><a href="/reviews">Reviews</a></li>
+            <li><a href="/pc">PC</a></li>
+            <li><a href="/playstation">PlayStation</a></li>
+            <li><a href="/xbox">Xbox</a></li>
+            <li><a href="/nintendo">Nintendo</a></li>
           </ul>
         </div>
         <div class="footer-col">
           <h4>Company</h4>
           <ul>
-            <li><a href="/p/about.html">About</a></li>
-            <li><a href="/p/contact.html">Contact</a></li>
-            <li><a href="/p/advertise.html">Advertise</a></li>
+            <li><a href="/about.html">About</a></li>
+            <li><a href="/contact.html">Contact</a></li>
+            <li><a href="/advertise.html">Advertise</a></li>
             <li><a href="/feeds/posts/default" rel="alternate" type="application/rss+xml">RSS Feed</a></li>
           </ul>
         </div>
         <div class="footer-col">
           <h4>Legal</h4>
           <ul>
-            <li><a href="/p/privacy-policy.html">Privacy Policy</a></li>
-            <li><a href="/p/terms.html">Terms of Use</a></li>
-            <li><a href="/p/disclaimer.html">Disclaimer</a></li>
-            <li><a href="/p/cookie-policy.html">Cookie Policy</a></li>
+            <li><a href="/privacy-policy.html">Privacy Policy</a></li>
+            <li><a href="/terms.html">Terms of Use</a></li>
+            <li><a href="/disclaimer.html">Disclaimer</a></li>
+            <li><a href="/cookie-policy.html">Cookie Policy</a></li>
           </ul>
         </div>
       </div>
       <div class="footer-bottom">
-        <span>© <span id="footerYear"/> GameHub. All rights reserved.</span>
+        <span>© <span id="footerYear"></span> GameHub. All rights reserved.</span>
         <span>Powered by <a href="/">GameHub</a></span>
       </div>
     </div>
