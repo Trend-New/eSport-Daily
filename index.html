@@ -1,812 +1,607 @@
-<!DOCTYPE html>
-<html lang="ar">
-<head>
-  <meta charset="utf-8"/>
-  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-  <meta content="IE=edge" http-equiv="X-UA-Compatible"/>
+// ════════════════════════════════════════════════════════════════════
+// PIXELPULSE — GameSpot-style Gaming News & Database Site
+// Next.js 14+ (App Router) + TypeScript + Tailwind CSS
+// Setup: npx create-next-app@latest gaming-news-site --typescript --tailwind --app
+// Then split this block into the files indicated by each FILE marker.
+// Optional: add RAWG_API_KEY=xxx to .env.local (renders with placeholders without it)
+// ════════════════════════════════════════════════════════════════════
 
-  <title>GameHub | Your Gaming News Source</title>
+// ═══ FILE: next.config.mjs ═══
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  images: {
+    remotePatterns: [
+      { protocol: 'https', hostname: 'media.rawg.io' },
+      { protocol: 'https', hostname: 'placehold.co' },
+    ],
+  },
+};
+export default nextConfig;
 
-  <meta content="Your source for the latest gaming news, reviews, and eSports coverage." name="description"/>
+// ═══ FILE: src/types/index.ts ═══
+/** A game entry, normalized from the RAWG API shape. */
+export interface Game {
+  id: number;
+  slug: string;
+  name: string;
+  released: string;
+  backgroundImage: string;
+  rating: number;            // 0–5 aggregate
+  metacritic: number | null;
+  platforms: string[];
+  genres: string[];
+}
 
-  <link href="/" rel="canonical"/>
+/** Extended game data for the profile page. */
+export interface GameDetails extends Game {
+  description: string;
+  developers: string[];
+  publishers: string[];
+  website: string | null;
+  playtime: number; // average hours
+}
 
-  <!-- Open Graph -->
-  <meta content="GameHub" property="og:site_name"/>
-  <meta content="website" property="og:type"/>
-  <meta content="GameHub - Your Gaming News Source" property="og:title"/>
+export interface Screenshot {
+  id: number;
+  imageUrl: string;
+}
 
-  <!-- Twitter Cards -->
-  <meta content="summary_large_image" name="twitter:card"/>
-  <meta content="GameHub" name="twitter:site"/>
+/** A news article (editorial content, CMS-ready). */
+export interface Article {
+  id: number;
+  slug: string;
+  title: string;
+  excerpt: string;
+  category: 'News' | 'Review' | 'Exclusive' | 'Feature';
+  imageUrl: string;
+  author: string;
+  publishedAt: string;
+  isBreaking?: boolean;
+}
 
-  <!-- Preconnect -->
-  <link href="https://fonts.googleapis.com" rel="preconnect"/>
-  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&amp;family=Rajdhani:wght@300;400;500;600;700&amp;family=Inter:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+// ═══ FILE: src/lib/mock-data.ts ═══
+import { Article, Game, GameDetails, Screenshot } from '@/types';
 
-  <style>
-    :root {
-      --neon-pink: #FF4D94;
-      --sunset-orange: #FF8C42;
-      --twilight-purple: #4A148C;
-      --cyan-teal: #00CED1;
-      --matte-black: #0A0A0A;
-      --bg-primary: #1A1A2E;
-      --bg-secondary: #16213E;
-      --bg-card: #1A1A3E;
-      --bg-card-hover: #2A2A4E;
-      --white: #FFFFFF;
-      --text-muted: rgba(255,255,255,0.5);
-      --text-secondary: rgba(255,255,255,0.7);
-      --border-color: rgba(255,255,255,0.08);
-      --shadow-neon-pink: 0 0 20px rgba(255,77,148,0.3);
-      --shadow-cyan: 0 0 20px rgba(0,206,209,0.3);
-      --font-orbitron: 'Orbitron', monospace;
-      --font-rajdhani: 'Rajdhani', sans-serif;
-      --font-inter: 'Inter', sans-serif;
-      --transition: 0.3s cubic-bezier(0.4,0,0.2,1);
-      --radius: 12px;
-      --max-width: 1280px;
-      --gutter: 1.5rem;
-    }
+export const mockGames: Game[] = [
+  {
+    id: 1, slug: 'starfall-odyssey', name: 'Starfall Odyssey',
+    released: '2026-06-18', rating: 4.6, metacritic: 91,
+    backgroundImage: 'https://placehold.co/640x360/0f0f13/22d3ee?text=Starfall+Odyssey',
+    platforms: ['PC', 'PlayStation', 'Xbox'], genres: ['RPG', 'Action'],
+  },
+  {
+    id: 2, slug: 'neon-drift-2', name: 'Neon Drift 2',
+    released: '2026-07-02', rating: 4.2, metacritic: 84,
+    backgroundImage: 'https://placehold.co/640x360/0f0f13/f472b6?text=Neon+Drift+2',
+    platforms: ['PC', 'Nintendo Switch'], genres: ['Racing'],
+  },
+  {
+    id: 3, slug: 'iron-vanguard', name: 'Iron Vanguard',
+    released: '2026-05-30', rating: 3.9, metacritic: 72,
+    backgroundImage: 'https://placehold.co/640x360/0f0f13/a78bfa?text=Iron+Vanguard',
+    platforms: ['PC', 'Xbox'], genres: ['Shooter', 'Tactical'],
+  },
+  {
+    id: 4, slug: 'mystic-hollow', name: 'Mystic Hollow',
+    released: '2026-06-25', rating: 4.8, metacritic: 94,
+    backgroundImage: 'https://placehold.co/640x360/0f0f13/34d399?text=Mystic+Hollow',
+    platforms: ['PC', 'PlayStation', 'Nintendo Switch'], genres: ['Adventure', 'Indie'],
+  },
+];
 
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { font-size: 16px; scroll-behavior: smooth; }
-    body {
-      background: var(--bg-primary);
-      background-image: radial-gradient(circle at 10% 20%, rgba(255,77,148,0.08) 0%, transparent 50%), radial-gradient(circle at 90% 80%, rgba(74,20,140,0.08) 0%, transparent 50%), radial-gradient(circle at 50% 50%, rgba(0,206,209,0.03) 0%, transparent 70%);
-      color: var(--text-secondary);
-      font-family: var(--font-rajdhani);
-      font-weight: 400;
-      line-height: 1.6;
-      -webkit-font-smoothing: antialiased;
-      min-height: 100vh;
-    }
-    img { max-width: 100%; height: auto; display: block; }
-    a { color: inherit; text-decoration: none; transition: color var(--transition); }
-    ul, ol { list-style: none; }
-    button { border: none; background: none; cursor: pointer; font-family: inherit; }
+export const mockArticles: Article[] = [
+  {
+    id: 1, slug: 'starfall-odyssey-review', title: 'Starfall Odyssey Review: A New Genre Benchmark',
+    excerpt: 'A sprawling, ambitious RPG that sticks the landing on nearly every front.',
+    category: 'Review', author: 'Alex Rivera', publishedAt: '2026-07-10', isBreaking: true,
+    imageUrl: 'https://placehold.co/1280x720/0f0f13/22d3ee?text=Breaking+Story',
+  },
+  {
+    id: 2, slug: 'summer-showcase-recap', title: 'Every Announcement From the Summer Showcase',
+    excerpt: 'All 40+ trailers, release dates, and surprise reveals in one place.',
+    category: 'News', author: 'Sam Cole', publishedAt: '2026-07-09',
+    imageUrl: 'https://placehold.co/640x360/0f0f13/a78bfa?text=Showcase',
+  },
+  {
+    id: 3, slug: 'mystic-hollow-exclusive', title: 'Exclusive: Inside the Making of Mystic Hollow',
+    excerpt: 'We spent a week with the team behind the year’s most surprising indie hit.',
+    category: 'Exclusive', author: 'Jordan Lee', publishedAt: '2026-07-08',
+    imageUrl: 'https://placehold.co/640x360/0f0f13/f472b6?text=Exclusive',
+  },
+  {
+    id: 4, slug: 'next-gen-handhelds', title: 'The Next-Gen Handheld War Is Heating Up',
+    excerpt: 'Three new devices, one crowded market. Here’s how they stack up.',
+    category: 'Feature', author: 'Priya Nair', publishedAt: '2026-07-07',
+    imageUrl: 'https://placehold.co/640x360/0f0f13/fbbf24?text=Feature',
+  },
+];
 
-    ::-webkit-scrollbar { width: 8px; }
-    ::-webkit-scrollbar-track { background: var(--bg-secondary); }
-    ::-webkit-scrollbar-thumb { background: var(--neon-pink); border-radius: 4px; }
+export const mockGameDetails: GameDetails = {
+  ...mockGames[0],
+  description:
+    'Starfall Odyssey is a sprawling open-world RPG set across a dying star system. Forge alliances, command a crew, and shape the fate of the galaxy through meaningful choices.',
+  developers: ['Nova Forge Studios'],
+  publishers: ['Apex Interactive'],
+  website: null,
+  playtime: 62,
+};
 
-    .container { max-width: var(--max-width); margin: 0 auto; padding: 0 var(--gutter); }
+export const mockScreenshots: Screenshot[] = [1, 2, 3, 4].map((i) => ({
+  id: i,
+  imageUrl: `https://placehold.co/1280x720/0f0f13/22d3ee?text=Screenshot+${i}`,
+}));
 
-    .hero-section { background: linear-gradient(135deg, var(--twilight-purple), var(--bg-primary)); padding: 80px 20px 60px; color: #ffffff; border-bottom: 4px solid var(--neon-pink); position: relative; overflow: hidden; }
-    .hero-section::before { content: ''; position: absolute; top: -50%; right: -20%; width: 60%; height: 200%; background: radial-gradient(circle, rgba(255,77,148,0.1) 0%, transparent 70%); pointer-events: none; }
-    .hero-title { color: var(--neon-pink); font-family: var(--font-inter); font-weight: 800; text-transform: uppercase; text-shadow: 0 0 10px rgba(255,77,148,0.5); }
-    .cta-button { background-color: var(--sunset-orange); color: var(--matte-black); padding: 12px 24px; border-radius: 4px; font-weight: bold; transition: 0.3s; display: inline-block; border: none; cursor: pointer; }
-    .cta-button:hover { background-color: var(--cyan-teal); box-shadow: 0 0 20px var(--cyan-teal); }
+// ═══ FILE: src/lib/api.ts ═══
+import { Game, GameDetails, Screenshot } from '@/types';
+import { mockGames, mockGameDetails, mockScreenshots } from './mock-data';
 
-    .neon-text-pink { color: var(--neon-pink); text-shadow: 0 0 10px rgba(255,77,148,0.8), 0 0 20px rgba(255,77,148,0.6), 0 0 30px rgba(255,77,148,0.4); }
-    .neon-text-orange { color: var(--sunset-orange); text-shadow: 0 0 10px rgba(255,140,66,0.8), 0 0 20px rgba(255,140,66,0.6); }
-    .neon-text-cyan { color: var(--cyan-teal); text-shadow: 0 0 10px rgba(0,206,209,0.8), 0 0 20px rgba(0,206,209,0.6); }
-    .neon-text-purple { color: var(--twilight-purple); text-shadow: 0 0 10px rgba(74,20,140,0.8), 0 0 20px rgba(74,20,140,0.6); }
-    .neon-gradient-text { background: linear-gradient(135deg, var(--neon-pink), var(--twilight-purple), var(--cyan-teal)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+const BASE_URL = 'https://api.rawg.io/api';
+const API_KEY = process.env.RAWG_API_KEY;
 
-    .badge { display: inline-block; padding: 0.15rem 0.8rem; border-radius: 20px; font-family: var(--font-orbitron); font-size: 0.55rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; background: linear-gradient(135deg, var(--neon-pink), var(--twilight-purple)); color: #fff; }
-    .badge--orange { background: var(--sunset-orange); color: var(--matte-black); }
-    .badge--cyan { background: var(--cyan-teal); color: var(--matte-black); }
-    .badge--outline { background: transparent; border: 1px solid var(--neon-pink); color: var(--neon-pink); }
+/** Normalize a raw RAWG game object into our Game type. */
+function normalizeGame(raw: any): Game {
+  return {
+    id: raw.id,
+    slug: raw.slug,
+    name: raw.name,
+    released: raw.released ?? 'TBA',
+    backgroundImage:
+      raw.background_image ?? 'https://placehold.co/640x360/0f0f13/22d3ee?text=No+Image',
+    rating: raw.rating ?? 0,
+    metacritic: raw.metacritic ?? null,
+    platforms: raw.parent_platforms?.map((p: any) => p.platform.name) ?? [],
+    genres: raw.genres?.map((g: any) => g.name) ?? [],
+  };
+}
 
-    .glow-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius); overflow: hidden; transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition); position: relative; }
-    .glow-card::before { content: ''; position: absolute; inset: -1px; background: linear-gradient(135deg, var(--neon-pink), var(--twilight-purple), var(--cyan-teal)); opacity: 0; border-radius: var(--radius); transition: opacity var(--transition); z-index: -1; }
-    .glow-card:hover { transform: translateY(-4px); border-color: rgba(255,77,148,0.3); box-shadow: var(--shadow-neon-pink); }
-    .glow-card:hover::before { opacity: 1; }
+/** Generic fetcher with ISR caching; falls back to mock data without a key. */
+async function fetchGames(params: string, revalidate = 3600): Promise<Game[]> {
+  if (!API_KEY) return mockGames;
+  const res = await fetch(`${BASE_URL}/games?key=${API_KEY}&${params}`, { next: { revalidate } });
+  if (!res.ok) return mockGames;
+  const data = await res.json();
+  return data.results.map(normalizeGame);
+}
 
-    .scanline { position: relative; overflow: hidden; }
-    .scanline::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.05) 2px, rgba(0,0,0,0.05) 4px); animation: scanline 8s linear infinite; }
-    @keyframes scanline { 0% { transform: translateY(-100%); } 100% { transform: translateY(100%); } }
+/** Recently released titles (last 30 days). */
+export function getRecentReleases() {
+  const to = new Date().toISOString().split('T')[0];
+  const from = new Date(Date.now() - 30 * 864e5).toISOString().split('T')[0];
+  return fetchGames(`dates=${from},${to}&ordering=-added&page_size=8`);
+}
 
-    .glitch-wrapper { position: relative; }
-    .glitch-wrapper .glitch-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; mix-blend-mode: overlay; pointer-events: none; background: linear-gradient(135deg, var(--neon-pink), var(--cyan-teal)); }
-    .glitch-wrapper:hover .glitch-layer { animation: glitch 0.15s ease-in-out infinite; opacity: 0.2; }
-    @keyframes glitch { 0%,100% { transform: translate(0); } 20% { transform: translate(-2px,2px); } 40% { transform: translate(2px,-2px); } 60% { transform: translate(-1px,1px); } 80% { transform: translate(1px,-1px); } }
+/** Most hyped / trending games. */
+export function getTrendingGames() {
+  return fetchGames('ordering=-added&page_size=8');
+}
 
-    .platform-tag { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.1rem 0.6rem; border-radius: 4px; font-size: 0.5rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; font-family: var(--font-orbitron); }
-    .platform-tag--ps { background: rgba(0,100,255,0.2); color: #0064ff; }
-    .platform-tag--xbox { background: rgba(0,180,0,0.2); color: #00b400; }
-    .platform-tag--pc { background: rgba(0,150,255,0.2); color: #0096ff; }
-    .platform-tag--switch { background: rgba(255,0,0,0.2); color: #ff0000; }
-    .platform-tag--zelda { background: rgba(255,215,0,0.2); color: #FFD700; }
+/** Upcoming releases (next 6 months). */
+export function getUpcomingGames() {
+  const from = new Date().toISOString().split('T')[0];
+  const to = new Date(Date.now() + 182 * 864e5).toISOString().split('T')[0];
+  return fetchGames(`dates=${from},${to}&ordering=-added&page_size=12`);
+}
 
-    .topbar { background: var(--bg-secondary); border-bottom: 1px solid var(--border-color); padding: 0.3rem 1.5rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.6rem; color: var(--text-muted); font-family: var(--font-orbitron); letter-spacing: 0.06em; text-transform: uppercase; }
-    .topbar a { color: var(--text-muted); transition: color var(--transition); }
-    .topbar a:hover { color: var(--neon-pink); }
+/** Full details for a single game. */
+export async function getGameDetails(slug: string): Promise<GameDetails | null> {
+  if (!API_KEY) return mockGameDetails;
+  const res = await fetch(`${BASE_URL}/games/${slug}?key=${API_KEY}`, {
+    next: { revalidate: 86400 },
+  });
+  if (!res.ok) return null;
+  const raw = await res.json();
+  return {
+    ...normalizeGame(raw),
+    description: raw.description_raw ?? '',
+    developers: raw.developers?.map((d: any) => d.name) ?? [],
+    publishers: raw.publishers?.map((p: any) => p.name) ?? [],
+    website: raw.website ?? null,
+    playtime: raw.playtime ?? 0,
+  };
+}
 
-    .site-header { position: sticky; top: 0; z-index: 200; background: rgba(22,33,62,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border-color); transition: background var(--transition), box-shadow var(--transition); }
-    .site-header.scrolled { box-shadow: 0 4px 30px rgba(0,0,0,0.5); }
-    .header-inner { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 0.8rem 1.5rem; gap: 1rem; }
-    .header-logo { grid-column: 2; text-align: center; }
-    .header-logo a { font-family: var(--font-orbitron); font-size: clamp(1.2rem, 2.5vw, 1.8rem); font-weight: 900; letter-spacing: 0.1em; text-transform: uppercase; color: var(--white); line-height: 1; }
-    .header-logo .logo-tagline { display: block; font-family: var(--font-rajdhani); font-size: 0.5rem; letter-spacing: 0.2em; font-weight: 400; color: var(--text-muted); text-transform: uppercase; margin-top: 2px; }
-    .header-left { display: flex; align-items: center; gap: 0.8rem; }
-    .header-right { display: flex; align-items: center; gap: 0.8rem; justify-content: flex-end; }
+/** Screenshot gallery for a game. */
+export async function getGameScreenshots(slug: string): Promise<Screenshot[]> {
+  if (!API_KEY) return mockScreenshots;
+  const res = await fetch(`${BASE_URL}/games/${slug}/screenshots?key=${API_KEY}`, {
+    next: { revalidate: 86400 },
+  });
+  if (!res.ok) return [];
+  const data = await res.json();
+  return data.results.map((s: any) => ({ id: s.id, imageUrl: s.image }));
+}
 
-    .btn-icon { display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; transition: background var(--transition), color var(--transition); color: var(--text-secondary); background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); }
-    .btn-icon:hover { background: rgba(255,77,148,0.1); color: var(--neon-pink); border-color: var(--neon-pink); }
+// ═══ FILE: src/app/globals.css ═══
+/*
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-    .nav-toggle { display: none; flex-direction: column; gap: 4px; padding: 4px; cursor: pointer; }
-    .nav-toggle span { display: block; width: 22px; height: 2px; background: var(--text-secondary); transition: transform var(--transition), opacity var(--transition); }
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: #09090b; }
+::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 5px; }
+::-webkit-scrollbar-thumb:hover { background: #22d3ee; }
 
-    .main-nav { border-top: 1px solid var(--border-color); background: rgba(22,33,62,0.95); backdrop-filter: blur(8px); }
-    .nav-list { display: flex; justify-content: center; align-items: center; gap: 0; padding: 0 1.5rem; flex-wrap: wrap; }
-    .nav-item { position: relative; }
-    .nav-link { display: block; padding: 0.6rem 1.2rem; font-family: var(--font-orbitron); font-size: 0.6rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-secondary); transition: color var(--transition); position: relative; }
-    .nav-link::after { content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 0; height: 2px; background: linear-gradient(135deg, var(--neon-pink), var(--twilight-purple)); transition: width var(--transition); }
-    .nav-link:hover { color: var(--white); }
-    .nav-link:hover::after { width: calc(100% - 2.4rem); }
+html { scroll-behavior: smooth; }
+*/
 
-    .nav-item:hover .mega-menu { opacity: 1; visibility: visible; transform: translateY(0); }
-    .mega-menu { position: absolute; top: 100%; left: 50%; transform: translateX(-50%) translateY(-6px); background: var(--bg-card); border: 1px solid var(--border-color); border-top: 2px solid var(--neon-pink); min-width: 180px; padding: 0.6rem 0; opacity: 0; visibility: hidden; transition: opacity var(--transition), transform var(--transition), visibility var(--transition); z-index: 300; box-shadow: 0 8px 40px rgba(0,0,0,0.6); border-radius: 8px; }
-    .mega-menu a { display: block; padding: 0.3rem 1.4rem; font-size: 0.65rem; font-weight: 500; color: var(--text-secondary); transition: color var(--transition), padding-left var(--transition); }
-    .mega-menu a:hover { color: var(--neon-pink); padding-left: 1.8rem; }
+// ═══ FILE: src/components/layout/Navbar.tsx ═══
+'use client';
+import Link from 'next/link';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
-    .search-overlay { position: fixed; inset: 0; background: rgba(22,33,62,0.98); z-index: 500; display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: opacity var(--transition), visibility var(--transition); }
-    .search-overlay.active { opacity: 1; visibility: visible; }
-    .search-overlay form { display: flex; align-items: center; border-bottom: 2px solid var(--neon-pink); width: min(600px, 90vw); gap: 1rem; }
-    .search-overlay input { flex: 1; background: none; border: none; outline: none; font-family: var(--font-orbitron); font-size: 1.2rem; color: var(--white); padding: 0.5rem 0; }
-    .search-overlay input::placeholder { color: var(--text-muted); }
-    .search-close { position: absolute; top: 2rem; right: 2rem; font-size: 1.8rem; color: var(--text-muted); cursor: pointer; transition: color var(--transition); }
-    .search-close:hover { color: var(--white); }
+const NAV_LINKS = [
+  { href: '/', label: 'Home' },
+  { href: '/news', label: 'News' },
+  { href: '/reviews', label: 'Reviews' },
+  { href: '/upcoming', label: 'Upcoming' },
+  { href: '/database', label: 'Database' },
+];
 
-    .hero { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; padding: 1.5rem 0; min-height: 60vh; }
-    .hero__feature { position: relative; border-radius: var(--radius); overflow: hidden; background: var(--bg-card); border: 1px solid var(--border-color); transition: transform var(--transition), box-shadow var(--transition); cursor: pointer; }
-    .hero__feature:hover { transform: scale(1.01); box-shadow: var(--shadow-neon-pink); }
-    .hero__feature img { width: 100%; height: 100%; object-fit: cover; aspect-ratio: 16/9; }
-    .hero__feature-overlay { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(22,33,62,0.9)); padding: 2rem 1.8rem 1.5rem; color: var(--white); }
-    .hero__feature-overlay .badge { margin-bottom: 0.6rem; }
-    .hero__feature-overlay h1 { font-family: var(--font-orbitron); font-size: clamp(1.2rem, 2.5vw, 1.8rem); font-weight: 800; line-height: 1.2; margin-bottom: 0.3rem; }
-    .hero__feature-overlay p { font-size: 0.8rem; opacity: 0.7; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-    .hero__sidebar { display: flex; flex-direction: column; gap: 1.5rem; }
-    .hero__secondary { position: relative; border-radius: var(--radius); overflow: hidden; background: var(--bg-card); border: 1px solid var(--border-color); transition: transform var(--transition), box-shadow var(--transition); flex: 1; cursor: pointer; }
-    .hero__secondary:hover { transform: scale(1.02); box-shadow: var(--shadow-cyan); }
-    .hero__secondary img { width: 100%; height: 100%; object-fit: cover; aspect-ratio: 16/7; }
-    .hero__secondary-overlay { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(22,33,62,0.85)); padding: 1.2rem 1.2rem 1rem; color: var(--white); }
-    .hero__secondary-overlay h2 { font-family: var(--font-orbitron); font-size: clamp(0.8rem, 1.2vw, 1rem); font-weight: 700; line-height: 1.3; }
-    .hero__secondary-overlay .badge { font-size: 0.45rem; padding: 0.1rem 0.6rem; margin-bottom: 0.3rem; }
+export default function Navbar() {
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState('');
+  const router = useRouter();
 
-    .section-head { display: flex; justify-content: space-between; align-items: center; padding: 2rem 0 1rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1.5rem; }
-    .section-head__left { display: flex; align-items: center; gap: 0.8rem; }
-    .section-head h2 { font-family: var(--font-orbitron); font-size: clamp(1rem, 1.8vw, 1.5rem); font-weight: 700; color: var(--white); }
-    .section-head .view-all { font-size: 0.6rem; font-weight: 600; color: var(--neon-pink); font-family: var(--font-orbitron); letter-spacing: 0.06em; text-transform: uppercase; transition: color var(--transition); }
-    .section-head .view-all:hover { color: var(--sunset-orange); }
+  /** Route search queries to the database page with a ?q param. */
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (query.trim()) router.push(`/database?q=${encodeURIComponent(query.trim())}`);
+  };
 
-    .card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius); overflow: hidden; transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition); }
-    .card:hover { transform: translateY(-4px); border-color: rgba(255,77,148,0.3); box-shadow: var(--shadow-neon-pink); }
-    .card__img { position: relative; overflow: hidden; aspect-ratio: 16/9; background: var(--bg-secondary); }
-    .card__img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
-    .card:hover .card__img img { transform: scale(1.05); }
-    .card__img .badge { position: absolute; top: 0.6rem; left: 0.6rem; font-size: 0.45rem; }
-    .card__body { padding: 1rem 1rem 1rem; }
-    .card__title { font-family: var(--font-orbitron); font-size: 0.85rem; font-weight: 700; color: var(--white); line-height: 1.3; margin-bottom: 0.3rem; }
-    .card__title a { transition: color var(--transition); }
-    .card__title a:hover { color: var(--neon-pink); }
-    .card__excerpt { font-size: 0.75rem; color: var(--text-secondary); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-    .card__meta { display: flex; align-items: center; gap: 0.8rem; margin-top: 0.6rem; padding-top: 0.6rem; border-top: 1px solid var(--border-color); font-size: 0.55rem; color: var(--text-muted); font-weight: 500; font-family: var(--font-orbitron); letter-spacing: 0.04em; }
-
-    .countdown-section { padding: 2.5rem 0; background: linear-gradient(180deg, var(--bg-secondary), var(--bg-primary)); border-top: 1px solid rgba(255,77,148,0.15); border-bottom: 1px solid rgba(255,77,148,0.15); text-align: center; }
-    .countdown-section h2 { font-family: var(--font-orbitron); font-size: clamp(1.5rem, 3vw, 2.5rem); font-weight: 800; color: var(--white); margin-bottom: 0.3rem; }
-    .countdown-section p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem; }
-    .countdown-grid { display: flex; justify-content: center; gap: 1.5rem; flex-wrap: wrap; }
-    .countdown-item { text-align: center; min-width: 60px; }
-    .countdown-item .number { font-family: var(--font-orbitron); font-size: clamp(2rem, 4vw, 3.5rem); font-weight: 900; background: linear-gradient(135deg, var(--neon-pink), var(--twilight-purple), var(--cyan-teal)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-shadow: 0 0 30px rgba(255,77,148,0.2); }
-    .countdown-item .label { font-family: var(--font-orbitron); font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-top: 0.2rem; }
-
-    .filter-btn { padding: 0.3rem 1rem; border-radius: 20px; border: 1px solid var(--border-color); background: transparent; color: var(--text-secondary); font-family: var(--font-orbitron); font-size: 0.55rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; transition: all var(--transition); cursor: pointer; display: inline-flex; align-items: center; gap: 0.3rem; }
-    .filter-btn:hover { border-color: rgba(255,77,148,0.3); color: var(--white); }
-    .filter-btn.active { border-color: var(--neon-pink); background: rgba(255,77,148,0.1); color: var(--neon-pink); box-shadow: 0 0 20px rgba(255,77,148,0.1); }
-
-    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
-    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.2rem; }
-    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
-
-    .site-content { display: grid; grid-template-columns: 1fr 300px; gap: 2rem; padding: 1.5rem 0 3rem; align-items: start; }
-
-    .post-header { margin-bottom: 1.5rem; }
-    .post-header .badge { margin-bottom: 0.6rem; }
-    .post-title { font-family: var(--font-orbitron); font-size: clamp(1.5rem, 3.5vw, 2.5rem); font-weight: 800; color: var(--white); line-height: 1.15; margin-bottom: 0.8rem; }
-    .post-meta { display: flex; align-items: center; gap: 1rem; font-size: 0.65rem; color: var(--text-muted); font-family: var(--font-orbitron); border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); padding: 0.6rem 0; }
-    .post-hero-img { border-radius: var(--radius); overflow: hidden; margin: 1.2rem 0; border: 1px solid var(--border-color); }
-    .post-hero-img img { width: 100%; height: auto; max-height: 400px; object-fit: cover; }
-    .post-body { font-size: 0.95rem; line-height: 1.8; color: var(--text-secondary); }
-    .post-body p { margin-bottom: 1rem; }
-    .post-body h2 { font-family: var(--font-orbitron); font-size: 1.2rem; font-weight: 700; color: var(--white); margin: 1.5rem 0 0.8rem; }
-    .post-body blockquote { border-left: 3px solid var(--neon-pink); padding: 0.3rem 1.2rem; margin: 1.2rem 0; background: rgba(255,77,148,0.05); border-radius: 4px; font-style: italic; }
-    .post-body a { color: var(--neon-pink); border-bottom: 1px solid transparent; transition: border-color var(--transition); }
-    .post-body a:hover { border-color: var(--neon-pink); }
-
-    .widget { margin-bottom: 1.5rem; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 1.2rem; }
-    .widget-title { font-family: var(--font-orbitron); font-size: 0.6rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--white); padding-bottom: 0.6rem; border-bottom: 1px solid var(--border-color); margin-bottom: 0.8rem; }
-    .popular-list { display: flex; flex-direction: column; gap: 0.6rem; }
-    .popular-item { display: flex; gap: 0.6rem; align-items: center; padding-bottom: 0.6rem; border-bottom: 1px solid var(--border-color); }
-    .popular-item:last-child { border-bottom: none; padding-bottom: 0; }
-    .popular-item__num { font-family: var(--font-orbitron); font-size: 1rem; font-weight: 700; color: var(--neon-pink); min-width: 1.5rem; text-align: center; }
-    .popular-item__title { font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); line-height: 1.3; transition: color var(--transition); }
-    .popular-item__title:hover { color: var(--neon-pink); }
-
-    .tag-cloud { display: flex; flex-wrap: wrap; gap: 0.3rem; }
-    .tag-cloud a { display: inline-block; padding: 0.15rem 0.7rem; border: 1px solid var(--border-color); border-radius: 20px; font-size: 0.6rem; font-weight: 500; color: var(--text-secondary); transition: all var(--transition); }
-    .tag-cloud a:hover { border-color: var(--neon-pink); color: var(--neon-pink); background: rgba(255,77,148,0.05); }
-
-    .newsletter-section { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 2.5rem 2rem; text-align: center; margin: 1.5rem 0; }
-    .newsletter-section h2 { font-family: var(--font-orbitron); font-size: clamp(1.2rem, 2vw, 1.8rem); font-weight: 700; color: var(--white); margin-bottom: 0.3rem; }
-    .newsletter-section p { color: var(--text-muted); font-size: 0.8rem; max-width: 420px; margin: 0 auto 1.2rem; }
-    .newsletter-form { display: flex; gap: 0; max-width: 440px; margin: 0 auto; border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; background: var(--bg-secondary); }
-    .newsletter-form input { flex: 1; padding: 0.6rem 1rem; background: transparent; border: none; outline: none; font-size: 0.8rem; color: var(--white); }
-    .newsletter-form input::placeholder { color: var(--text-muted); }
-    .newsletter-form button { padding: 0.6rem 1.5rem; background: linear-gradient(135deg, var(--neon-pink), var(--twilight-purple)); color: #fff; font-family: var(--font-orbitron); font-size: 0.6rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; transition: opacity var(--transition); }
-    .newsletter-form button:hover { opacity: 0.85; }
-
-    .site-footer { background: var(--bg-secondary); border-top: 1px solid var(--border-color); padding: 2.5rem 0 0; margin-top: 1.5rem; }
-    .footer-top { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 2rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border-color); }
-    .footer-brand .footer-logo { font-family: var(--font-orbitron); font-size: 1.2rem; font-weight: 900; letter-spacing: 0.1em; color: var(--white); display: block; margin-bottom: 0.3rem; }
-    .footer-brand p { font-size: 0.75rem; color: var(--text-muted); line-height: 1.6; max-width: 240px; margin-bottom: 0.8rem; }
-    .footer-social { display: flex; gap: 0.5rem; }
-    .footer-social a { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border: 1px solid var(--border-color); border-radius: 50%; transition: all var(--transition); color: var(--text-muted); }
-    .footer-social a:hover { border-color: var(--neon-pink); color: var(--neon-pink); }
-
-    .footer-col h4 { font-family: var(--font-orbitron); font-size: 0.55rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--white); margin-bottom: 0.8rem; }
-    .footer-col ul { display: flex; flex-direction: column; gap: 0.4rem; }
-    .footer-col ul a { font-size: 0.75rem; color: var(--text-muted); transition: color var(--transition); }
-    .footer-col ul a:hover { color: var(--neon-pink); }
-
-    .footer-bottom { display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; border-top: 1px solid var(--border-color); font-size: 0.6rem; color: var(--text-muted); }
-    .footer-bottom a { color: var(--text-muted); transition: color var(--transition); }
-    .footer-bottom a:hover { color: var(--neon-pink); }
-
-    .mobile-nav { position: fixed; top: 0; left: 0; bottom: 0; width: 280px; background: var(--bg-card); z-index: 600; transform: translateX(-100%); transition: transform var(--transition); overflow-y: auto; padding: 1.5rem; border-right: 1px solid var(--border-color); }
-    .mobile-nav.open { transform: translateX(0); }
-    .mobile-nav-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 599; opacity: 0; visibility: hidden; transition: opacity var(--transition), visibility var(--transition); }
-    .mobile-nav-overlay.open { opacity: 1; visibility: visible; }
-    .mobile-nav-close { display: flex; justify-content: flex-end; margin-bottom: 1.2rem; }
-    .mobile-nav-logo { font-family: var(--font-orbitron); font-size: 1.2rem; font-weight: 900; color: var(--white); display: block; text-align: center; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color); }
-    .mobile-nav ul { display: flex; flex-direction: column; gap: 0; }
-    .mobile-nav ul li a { display: block; padding: 0.6rem 0; font-family: var(--font-orbitron); font-size: 0.65rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-secondary); border-bottom: 1px solid var(--border-color); transition: color var(--transition), padding-left var(--transition); }
-    .mobile-nav ul li a:hover { color: var(--neon-pink); padding-left: 0.5rem; }
-
-    .back-to-top { position: fixed; bottom: 1.5rem; right: 1.5rem; width: 40px; height: 40px; background: linear-gradient(135deg, var(--neon-pink), var(--twilight-purple)); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 50%; opacity: 0; visibility: hidden; transform: translateY(12px); transition: all var(--transition); z-index: 100; box-shadow: var(--shadow-neon-pink); }
-    .back-to-top.visible { opacity: 1; visibility: visible; transform: translateY(0); }
-    .back-to-top:hover { opacity: 0.85; transform: translateY(-2px); }
-
-    .sidebar-section { display: none; }
-    body.archive-template .sidebar-section, body.label-template .sidebar-section { display: block; }
-    body.archive-template .container .site-content, body.label-template .container .site-content { display: grid; grid-template-columns: 1fr 300px; gap: 2rem; align-items: start; }
-
-    @media (max-width: 1024px) { .grid-4 { grid-template-columns: repeat(2, 1fr); } .footer-top { grid-template-columns: 1fr 1fr; } .hero { grid-template-columns: 1fr; min-height: auto; } .hero__sidebar { display: none; } }
-    @media (max-width: 768px) { .topbar { display: none; } .main-nav { display: none; } .nav-toggle { display: flex; } .site-content { grid-template-columns: 1fr; } .grid-3, .grid-4 { grid-template-columns: 1fr; } .grid-2 { grid-template-columns: 1fr; } .footer-top { grid-template-columns: 1fr; gap: 1.5rem; } .header-inner { padding: 0.6rem 1rem; } .footer-bottom { flex-direction: column; gap: 0.5rem; text-align: center; } .back-to-top { bottom: 1rem; right: 1rem; } .newsletter-form { flex-direction: column; border-radius: 8px; } .newsletter-form input { border-bottom: 1px solid var(--border-color); } .newsletter-form button { border-radius: 0 0 8px 8px; } .search-overlay input { font-size: 0.9rem; } .countdown-grid { gap: 1rem; } .countdown-item { min-width: 50px; } body.archive-template .container .site-content, body.label-template .container .site-content { grid-template-columns: 1fr; } body.archive-template .sidebar-section, body.label-template .sidebar-section { display: none; } }
-    @media (max-width: 480px) { .grid-4 { grid-template-columns: 1fr; } .countdown-item .number { font-size: 1.5rem; } }
-
-    :focus-visible { outline: 2px solid var(--neon-pink); outline-offset: 2px; }
-    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; } }
-
-    @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-    .animate-in { animation: fadeInUp 0.5s ease forwards; }
-    .animate-in:nth-child(2) { animation-delay: 0.1s; }
-    .animate-in:nth-child(3) { animation-delay: 0.2s; }
-    .animate-in:nth-child(4) { animation-delay: 0.3s; }
-  </style>
-</head>
-
-<body>
-  <div aria-label="Search" class="search-overlay" id="searchOverlay" role="dialog">
-    <button aria-label="Close search" class="search-close" id="searchClose">&#10005;</button>
-    <form action="/search" method="get" role="search">
-      <input aria-label="Search games" autocomplete="off" id="searchInput" name="q" placeholder="Search games, news, reviews…" type="search"/>
-      <button aria-label="Submit search" type="submit">
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="7"/><line x1="16.5" x2="22" y1="16.5" y2="22"/></svg>
-      </button>
-    </form>
-  </div>
-
-  <div class="mobile-nav-overlay" id="mobileNavOverlay"></div>
-  
-  <nav aria-label="Mobile navigation" class="mobile-nav" id="mobileNav">
-    <div class="mobile-nav-close">
-      <button aria-label="Close menu" class="btn-icon" id="mobileNavClose">
-        <svg viewBox="0 0 24 24"><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg>
-      </button>
-    </div>
-    <a class="mobile-nav-logo" href="/">GAME<span style="color:var(--neon-pink)">HUB</span></a>
-    <ul>
-      <li><a href="/">Home</a></li>
-      <li><a href="/news">News</a></li>
-      <li><a href="/reviews">Reviews</a></li>
-      <li><a href="/pc">PC</a></li>
-      <li><a href="/playstation">PlayStation</a></li>
-      <li><a href="/xbox">Xbox</a></li>
-      <li><a href="/nintendo">Nintendo</a></li>
-      <li><a href="/about.html">About</a></li>
-    </ul>
-  </nav>
-
-  <div class="topbar" role="banner">
-    <div class="topbar__date" id="topbarDate"></div>
-    <div class="topbar__social">
-      <a aria-label="Twitter" href="#" rel="noopener noreferrer" target="_blank">Twitter</a>
-      <a aria-label="YouTube" href="#" rel="noopener noreferrer" target="_blank">YouTube</a>
-      <a aria-label="Discord" href="#" rel="noopener noreferrer" target="_blank">Discord</a>
-    </div>
-  </div>
-
-  <header class="site-header" id="siteHeader" role="banner">
-    <div class="header-inner">
-      <div class="header-left">
-        <button aria-expanded="false" aria-label="Open menu" class="nav-toggle" id="navToggle"><span></span><span></span><span></span></button>
-        <button aria-label="Open search" class="btn-icon" id="searchToggle">
-          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" x2="22" y1="16.5" y2="22"/></svg>
-        </button>
-      </div>
-      <div class="header-logo">
-        <a href="/">GAME<span class="neon-text-pink">HUB</span><span class="logo-tagline">Your Gaming News Source</span></a>
-      </div>
-      <div class="header-right">
-        <button aria-label="Toggle dark mode" class="btn-icon" id="darkModeToggle">
-          <svg id="iconSun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><line x1="12" x2="12" y1="2" y2="5"/><line x1="12" x2="12" y1="19" y2="22"/><line x1="4.22" x2="6.34" y1="4.22" y2="6.34"/><line x1="17.66" x2="19.78" y1="17.66" y2="19.78"/><line x1="2" x2="5" y1="12" y2="12"/><line x1="19" x2="22" y1="12" y2="12"/><line x1="4.22" x2="6.34" y1="19.78" y2="17.66"/><line x1="17.66" x2="19.78" y1="6.34" y2="4.22"/></svg>
-          <svg id="iconMoon" style="display:none" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
-        </button>
-      </div>
-    </div>
-    <nav aria-label="Main navigation" class="main-nav">
-      <ul class="nav-list">
-        <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
-        <li class="nav-item">
-          <a class="nav-link" href="/news">News</a>
-          <div class="mega-menu">
-            <a href="/breaking">Breaking</a>
-            <a href="/updates">Updates</a>
-            <a href="/trailers">Trailers</a>
-          </div>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="/reviews">Reviews</a>
-          <div class="mega-menu">
-            <a href="/reviews">All Reviews</a>
-            <a href="/pc">PC</a>
-            <a href="/playstation">PlayStation</a>
-            <a href="/xbox">Xbox</a>
-            <a href="/nintendo">Nintendo</a>
-          </div>
-        </li>
-        <li class="nav-item"><a class="nav-link" href="/pc">PC</a></li>
-        <li class="nav-item"><a class="nav-link" href="/playstation">PlayStation</a></li>
-        <li class="nav-item"><a class="nav-link" href="/xbox">Xbox</a></li>
-        <li class="nav-item"><a class="nav-link" href="/nintendo">Nintendo</a></li>
-        <li class="nav-item"><a class="nav-link" href="/about.html">About</a></li>
-      </ul>
-    </nav>
-  </header>
-
-  <main id="main-content" role="main" tabindex="-1">
-    <div class="container">
-      <section aria-label="Featured stories" class="hero">
-        <article class="hero__feature scanline">
-          <img alt="Zelda Ocarina of Time Remake" height="500" loading="eager" src="https://i.pinimg.com/1200x/27/88/89/278889c6daee81300a833351576c244a.jpg" width="800"/>
-          <div class="hero__feature-overlay">
-            <span class="badge badge--cyan">Breaking News</span>
-            <h1>Zelda: Ocarina of Time Remake Announced for Switch 2</h1>
-            <p>Nintendo reveals the most anticipated remake of the classic game with stunning new visuals.</p>
-          </div>
-        </article>
-        <div class="hero__sidebar">
-          <article class="hero__secondary scanline">
-            <img alt="Resident Evil Code Veronica" height="250" loading="eager" src="https://i.pinimg.com/1200x/03/48/7c/03487c1cb2bc0db537e5549800679ea1.jpg" width="800"/>
-            <div class="hero__secondary-overlay">
-              <span class="badge badge--orange">Review</span>
-              <h2>Resident Evil: Code Veronica Remake Announced</h2>
-            </div>
-          </article>
-          <article class="hero__secondary scanline">
-            <img alt="GTA 6 news" height="250" loading="eager" src="https://i.pinimg.com/736x/9b/db/38/9bdb38262b7d1182a726fb018884485d.jpg" width="800"/>
-            <div class="hero__secondary-overlay">
-              <span class="badge badge--outline">eSports</span>
-              <h2>GTA 6: Vice City Returns in 2025</h2>
-            </div>
-          </article>
-        </div>
-      </section>
-
-      <section class="countdown-section">
-        <h2>GTA 6 <span class="neon-text-pink">Countdown</span></h2>
-        <p>The most anticipated release of the year</p>
-        <div class="countdown-grid" id="countdownTimer">
-          <div class="countdown-item"><div class="number" id="days">--</div><div class="label">Days</div></div>
-          <div class="countdown-item"><div class="number" id="hours">--</div><div class="label">Hours</div></div>
-          <div class="countdown-item"><div class="number" id="minutes">--</div><div class="label">Minutes</div></div>
-          <div class="countdown-item"><div class="number" id="seconds">--</div><div class="label">Seconds</div></div>
-        </div>
-      </section>
-
-      <div style="display:flex;flex-wrap:wrap;gap:0.5rem;padding:0.5rem 0 1rem">
-        <a class="filter-btn active" href="/news">🎮 All News</a>
-        <a class="filter-btn" href="/nintendo">🔴 Nintendo</a>
-        <a class="filter-btn" href="/playstation">🔵 PlayStation</a>
-        <a class="filter-btn" href="/xbox">🟢 Xbox</a>
-        <a class="filter-btn" href="/pc">🖥️ PC</a>
-        <a class="filter-btn" href="/reviews">⭐ Reviews</a>
-      </div>
-
-      <div class="section-head">
-        <div class="section-head__left"><h2>Latest News</h2><span class="badge">Live</span></div>
-        <a class="view-all" href="/news">View All →</a>
-      </div>
-      
-      <div class="grid-3" style="margin-bottom:1.5rem">
-        <article class="card animate-in">
-          <div class="card__img">
-            <a href="#" tabindex="-1">
-              <img alt="Game News" src="https://i.pinimg.com/736x/27/88/89/278889c6daee81300a833351576c244a.jpg" height="200" loading="lazy" width="400"/>
-            </a>
-            <span class="badge">New</span>
-          </div>
-          <div class="card__body">
-            <span class="platform-tag platform-tag--zelda">Nintendo</span>
-            <h3 class="card__title"><a href="#">Zelda: Ocarina of Time Remake Announced</a></h3>
-            <p class="card__excerpt">Nintendo reveals the most anticipated remake of the classic game with stunning new visuals.</p>
-            <div class="card__meta"><time datetime="2024-03-15">March 15, 2024</time><span>•</span><span>GameHub Staff</span></div>
-          </div>
-        </article>
-        <article class="card animate-in">
-          <div class="card__img">
-            <a href="#" tabindex="-1">
-              <img alt="Game News" src="https://i.pinimg.com/736x/03/48/7c/03487c1cb2bc0db537e5549800679ea1.jpg" height="200" loading="lazy" width="400"/>
-            </a>
-            <span class="badge">New</span>
-          </div>
-          <div class="card__body">
-            <span class="platform-tag platform-tag--ps">PlayStation</span>
-            <h3 class="card__title"><a href="#">Resident Evil: Code Veronica Remake Announced</a></h3>
-            <p class="card__excerpt">Capcom brings back the classic survival horror with stunning visuals and modern gameplay.</p>
-            <div class="card__meta"><time datetime="2024-03-14">March 14, 2024</time><span>•</span><span>GameHub Staff</span></div>
-          </div>
-        </article>
-        <article class="card animate-in">
-          <div class="card__img">
-            <a href="#" tabindex="-1">
-              <img alt="Game News" src="https://i.pinimg.com/736x/9b/db/38/9bdb38262b7d1182a726fb018884485d.jpg" height="200" loading="lazy" width="400"/>
-            </a>
-            <span class="badge">New</span>
-          </div>
-          <div class="card__body">
-            <span class="platform-tag platform-tag--pc">PC</span>
-            <h3 class="card__title"><a href="#">GTA 6: Vice City Returns in 2025</a></h3>
-            <p class="card__excerpt">Rockstar Games announces the next installment in the Grand Theft Auto series.</p>
-            <div class="card__meta"><time datetime="2024-03-13">March 13, 2024</time><span>•</span><span>GameHub Staff</span></div>
-          </div>
-        </article>
-        <article class="card animate-in">
-          <div class="card__img">
-            <a href="#" tabindex="-1">
-              <img alt="Game News" src="https://i.pinimg.com/736x/66/ef/cc/66efcc8e1705091f728cd815236e690a.jpg" height="200" loading="lazy" width="400"/>
-            </a>
-            <span class="badge">Review</span>
-          </div>
-          <div class="card__body">
-            <span class="platform-tag platform-tag--switch">Nintendo</span>
-            <h3 class="card__title"><a href="#">Ocarina of Time Remake Review – A Masterpiece Reborn</a></h3>
-            <p class="card__excerpt">Nintendo delivers an emotional, visually stunning remake that redefines the classic.</p>
-            <div class="card__meta"><time datetime="2024-03-12">March 12, 2024</time><span>•</span><span>GameHub Staff</span></div>
-          </div>
-        </article>
-        <article class="card animate-in">
-          <div class="card__img">
-            <a href="#" tabindex="-1">
-              <img alt="Game News" src="https://i.pinimg.com/736x/ce/d6/95/ced695970209d44d8ef013aa8d3f9cf6.jpg" height="200" loading="lazy" width="400"/>
-            </a>
-            <span class="badge">Review</span>
-          </div>
-          <div class="card__body">
-            <span class="platform-tag platform-tag--ps">PlayStation</span>
-            <h3 class="card__title"><a href="#">Resident Evil: Code Veronica Remake Review</a></h3>
-            <p class="card__excerpt">Capcom brings back the classic survival horror with stunning visuals and modern gameplay.</p>
-            <div class="card__meta"><time datetime="2024-03-11">March 11, 2024</time><span>•</span><span>GameHub Staff</span></div>
-          </div>
-        </article>
-        <article class="card animate-in">
-          <div class="card__img">
-            <a href="#" tabindex="-1">
-              <img alt="Game News" src="https://i.pinimg.com/736x/00/a8/e4/00a8e4a3edf9937c186dbecd009fd48d.jpg" height="200" loading="lazy" width="400"/>
-            </a>
-            <span class="badge">News</span>
-          </div>
-          <div class="card__body">
-            <span class="platform-tag platform-tag--zelda">Nintendo</span>
-            <h3 class="card__title"><a href="#">Nintendo Direct: Biggest Announcements</a></h3>
-            <p class="card__excerpt">Nintendo reveals a slew of new games and updates in their latest Direct presentation.</p>
-            <div class="card__meta"><time datetime="2024-03-10">March 10, 2024</time><span>•</span><span>GameHub Staff</span></div>
-          </div>
-        </article>
-      </div>
-
-      <div class="section-head">
-        <div class="section-head__left"><h2>Featured Reviews</h2><span class="badge badge--orange">Top Rated</span></div>
-        <a class="view-all" href="/reviews">All Reviews →</a>
-      </div>
-      
-      <div class="grid-2" style="margin-bottom:1.5rem">
-        <article class="card glow-card animate-in">
-          <div class="card__img">
-            <img alt="Zelda Ocarina of Time" height="250" loading="lazy" src="https://i.pinimg.com/736x/66/ef/cc/66efcc8e1705091f728cd815236e690a.jpg" width="500"/>
-            <span class="badge">9.8/10</span>
-          </div>
-          <div class="card__body">
-            <span class="platform-tag platform-tag--switch">Nintendo Switch 2</span>
-            <h3 class="card__title"><a href="/reviews">Ocarina of Time Remake — A Masterpiece Reborn</a></h3>
-            <p class="card__excerpt">Nintendo delivers an emotional, visually stunning remake that redefines the classic.</p>
-            <div class="card__meta"><span>March 2024</span><span>•</span><span>By GameHub Staff</span></div>
-          </div>
-        </article>
-        <article class="card glow-card animate-in">
-          <div class="card__img">
-            <img alt="Resident Evil Code Veronica" height="250" loading="lazy" src="https://i.pinimg.com/736x/ce/d6/95/ced695970209d44d8ef013aa8d3f9cf6.jpg" width="500"/>
-            <span class="badge">9.0/10</span>
-          </div>
-          <div class="card__body">
-            <span class="platform-tag platform-tag--ps">PlayStation 5</span>
-            <h3 class="card__title"><a href="/reviews">Resident Evil: Code Veronica Remake Review</a></h3>
-            <p class="card__excerpt">Capcom brings back the classic survival horror with stunning visuals and modern gameplay.</p>
-            <div class="card__meta"><span>February 2024</span><span>•</span><span>By GameHub Staff</span></div>
-          </div>
-        </article>
-      </div>
-
-      <section class="newsletter-section">
-        <h2>Get the Latest Gaming News</h2>
-        <p>Subscribe to our newsletter for daily updates, reviews, and exclusive interviews.</p>
-        <form action="#" class="newsletter-form" method="post">
-          <input aria-label="Your email" name="email" placeholder="Enter your email address" required="" type="email"/>
-          <button type="submit">Subscribe</button>
+  return (
+    <header className="sticky top-0 z-50 border-b border-zinc-800 bg-zinc-950/90 backdrop-blur">
+      <nav className="mx-auto flex h-16 max-w-7xl items-center gap-6 px-4 sm:px-6 lg:px-8">
+        <Link href="/" className="text-xl font-extrabold tracking-tight">
+          PIXEL<span className="text-cyan-400">PULSE</span>
+        </Link>
+        <ul className="hidden items-center gap-1 md:flex">
+          {NAV_LINKS.map((l) => (
+            <li key={l.href}>
+              <Link href={l.href} className="rounded-md px-3 py-2 text-sm font-medium text-zinc-300 transition-colors hover:bg-zinc-800 hover:text-white">
+                {l.label}
+              </Link>
+            </li>
+          ))}
+        </ul>
+        <form onSubmit={handleSearch} className="ml-auto hidden sm:block">
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search games…"
+            className="w-48 rounded-full border border-zinc-700 bg-zinc-900 px-4 py-1.5 text-sm outline-none transition-all focus:w-64 focus:border-cyan-400"
+          />
         </form>
+        <button onClick={() => setOpen(!open)} aria-label="Toggle menu" className="ml-auto rounded-md p-2 hover:bg-zinc-800 md:hidden">
+          <span aria-hidden>☰</span>
+        </button>
+      </nav>
+      {open && (
+        <ul className="space-y-1 border-t border-zinc-800 px-4 py-3 md:hidden">
+          {NAV_LINKS.map((l) => (
+            <li key={l.href}>
+              <Link href={l.href} onClick={() => setOpen(false)} className="block rounded-md px-3 py-2 text-zinc-300 hover:bg-zinc-800 hover:text-white">
+                {l.label}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
+    </header>
+  );
+}
+
+// ═══ FILE: src/components/layout/Footer.tsx ═══
+import Link from 'next/link';
+
+const FOOTER_LINKS = [
+  { href: '/news', label: 'News' },
+  { href: '/reviews', label: 'Reviews' },
+  { href: '/upcoming', label: 'Upcoming' },
+  { href: '/database', label: 'Database' },
+];
+
+export default function Footer() {
+  return (
+    <footer className="mt-16 border-t border-zinc-800 bg-zinc-900/50">
+      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+        <div className="flex flex-col items-center justify-between gap-6 sm:flex-row">
+          <Link href="/" className="text-lg font-extrabold tracking-tight">
+            PIXEL<span className="text-cyan-400">PULSE</span>
+          </Link>
+          <ul className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm">
+            {FOOTER_LINKS.map((l) => (
+              <li key={l.href}>
+                <Link href={l.href} className="text-zinc-400 transition-colors hover:text-cyan-300">{l.label}</Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <p className="mt-8 text-center text-xs text-zinc-500">
+          © {new Date().getFullYear()} PixelPulse. Game data powered by RAWG. All trademarks belong to their respective owners.
+        </p>
+      </div>
+    </footer>
+  );
+}
+
+// ═══ FILE: src/components/home/HeroSection.tsx ═══
+import Image from 'next/image';
+import Link from 'next/link';
+import { Article } from '@/types';
+
+/** Full-width breaking-news hero with gradient overlay. */
+export default function HeroSection({ article }: { article: Article }) {
+  return (
+    <Link href={`/news/${article.slug}`} className="group relative block overflow-hidden rounded-2xl">
+      <div className="relative aspect-[16/7] w-full">
+        <Image
+          src={article.imageUrl}
+          alt={article.title}
+          fill
+          priority
+          sizes="(max-width: 1280px) 100vw, 1280px"
+          className="object-cover transition-transform duration-500 group-hover:scale-105"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/40 to-transparent" />
+      </div>
+      <div className="absolute bottom-0 p-6 sm:p-10">
+        {article.isBreaking && (
+          <span className="mb-3 inline-block rounded bg-red-600 px-2.5 py-1 text-xs font-bold uppercase tracking-wider">
+            Breaking
+          </span>
+        )}
+        <h1 className="max-w-3xl text-2xl font-extrabold leading-tight transition-colors group-hover:text-cyan-300 sm:text-4xl">
+          {article.title}
+        </h1>
+        <p className="mt-2 hidden max-w-2xl text-zinc-300 sm:block">{article.excerpt}</p>
+        <p className="mt-3 text-sm text-zinc-400">By {article.author} · {article.publishedAt}</p>
+      </div>
+    </Link>
+  );
+}
+
+// ═══ FILE: src/components/news/NewsCard.tsx ═══
+import Image from 'next/image';
+import Link from 'next/link';
+import { Article } from '@/types';
+
+const CATEGORY_COLORS: Record<Article['category'], string> = {
+  News: 'bg-cyan-500', Review: 'bg-violet-500', Exclusive: 'bg-red-500', Feature: 'bg-amber-500',
+};
+
+export default function NewsCard({ article }: { article: Article }) {
+  return (
+    <Link
+      href={`/news/${article.slug}`}
+      className="group overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900 transition-all hover:-translate-y-1 hover:border-cyan-400/50 hover:shadow-lg hover:shadow-cyan-500/10"
+    >
+      <div className="relative aspect-video">
+        <Image src={article.imageUrl} alt={article.title} fill sizes="(max-width: 640px) 100vw, 33vw" className="object-cover" />
+        <span className={`absolute left-3 top-3 rounded px-2 py-0.5 text-xs font-bold uppercase ${CATEGORY_COLORS[article.category]}`}>
+          {article.category}
+        </span>
+      </div>
+      <div className="p-4">
+        <h3 className="line-clamp-2 font-bold leading-snug transition-colors group-hover:text-cyan-300">{article.title}</h3>
+        <p className="mt-2 line-clamp-2 text-sm text-zinc-400">{article.excerpt}</p>
+        <p className="mt-3 text-xs text-zinc-500">{article.author} · {article.publishedAt}</p>
+      </div>
+    </Link>
+  );
+}
+
+// ═══ FILE: src/components/news/NewsGrid.tsx ═══
+import { Article } from '@/types';
+import NewsCard from './NewsCard';
+
+/** Responsive editorial grid. */
+export default function NewsGrid({ articles }: { articles: Article[] }) {
+  return (
+    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {articles.map((a) => <NewsCard key={a.id} article={a} />)}
+    </div>
+  );
+}
+
+// ═══ FILE: src/components/games/GameCard.tsx ═══
+import Image from 'next/image';
+import Link from 'next/link';
+import { Game } from '@/types';
+
+/** Color-code the score badge like Metacritic (green/yellow/red). */
+function scoreColor(score: number | null) {
+  if (score === null) return 'bg-zinc-600';
+  if (score >= 75) return 'bg-green-600';
+  if (score >= 50) return 'bg-yellow-600';
+  return 'bg-red-600';
+}
+
+export default function GameCard({ game }: { game: Game }) {
+  return (
+    <Link
+      href={`/game/${game.slug}`}
+      className="group overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900 transition-all hover:-translate-y-1 hover:border-pink-500/50 hover:shadow-lg hover:shadow-pink-500/10"
+    >
+      <div className="relative aspect-video">
+        <Image src={game.backgroundImage} alt={game.name} fill sizes="(max-width: 640px) 100vw, 25vw" className="object-cover transition-transform duration-300 group-hover:scale-105" />
+        {game.metacritic !== null && (
+          <span className={`absolute right-3 top-3 rounded px-2 py-1 text-xs font-bold ${scoreColor(game.metacritic)}`}>
+            {game.metacritic}
+          </span>
+        )}
+      </div>
+      <div className="p-4">
+        <h3 className="line-clamp-1 font-bold transition-colors group-hover:text-pink-400">{game.name}</h3>
+        <p className="mt-1 text-xs text-zinc-400">{game.released} · {game.platforms.slice(0, 3).join(', ')}</p>
+        <div className="mt-2 flex flex-wrap gap-1.5">
+          {game.genres.slice(0, 2).map((g) => (
+            <span key={g} className="rounded-full bg-zinc-800 px-2 py-0.5 text-xs text-zinc-300">{g}</span>
+          ))}
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+// ═══ FILE: src/app/layout.tsx ═══
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+import Navbar from '@/components/layout/Navbar';
+import Footer from '@/components/layout/Footer';
+import './globals.css';
+
+const inter = Inter({ subsets: ['latin'] });
+
+export const metadata: Metadata = {
+  title: { default: 'PixelPulse — Gaming News & Database', template: '%s | PixelPulse' },
+  description: 'Breaking gaming news, reviews, and a full games database.',
+};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en" className="dark">
+      <body className={`${inter.className} bg-zinc-950 text-zinc-100 antialiased`}>
+        <Navbar />
+        <main className="mx-auto min-h-[70vh] max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+          {children}
+        </main>
+        <Footer />
+      </body>
+    </html>
+  );
+}
+
+// ═══ FILE: src/app/page.tsx ═══
+import HeroSection from '@/components/home/HeroSection';
+import NewsGrid from '@/components/news/NewsGrid';
+import GameCard from '@/components/games/GameCard';
+import { getRecentReleases, getTrendingGames } from '@/lib/api';
+import { mockArticles } from '@/lib/mock-data';
+
+export default async function HomePage() {
+  // Parallel data fetching for performance
+  const [recent, trending] = await Promise.all([getRecentReleases(), getTrendingGames()]);
+  const [heroArticle, ...articles] = mockArticles; // swap for CMS fetch later
+
+  return (
+    <div className="space-y-14">
+      <HeroSection article={heroArticle} />
+      <section>
+        <h2 className="mb-5 border-l-4 border-cyan-400 pl-3 text-2xl font-bold">Latest News</h2>
+        <NewsGrid articles={articles} />
+      </section>
+      <section>
+        <h2 className="mb-5 border-l-4 border-pink-500 pl-3 text-2xl font-bold">Trending Now</h2>
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {trending.map((g) => <GameCard key={g.id} game={g} />)}
+        </div>
+      </section>
+      <section>
+        <h2 className="mb-5 border-l-4 border-violet-500 pl-3 text-2xl font-bold">Recent Releases</h2>
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {recent.map((g) => <GameCard key={g.id} game={g} />)}
+        </div>
       </section>
     </div>
-  </main>
+  );
+}
 
-  <section class="sidebar-section" id="sidebar">
-    <div class="widget" id="PopularPosts1">
-      <div class="widget-title">🔥 Trending Now</div>
-      <div class="popular-list">
-        <div class="popular-item"><span class="popular-item__num">1</span><a class="popular-item__title" href="#">Zelda: Ocarina of Time Remake</a></div>
-        <div class="popular-item"><span class="popular-item__num">2</span><a class="popular-item__title" href="#">Resident Evil: Code Veronica Remake</a></div>
-        <div class="popular-item"><span class="popular-item__num">3</span><a class="popular-item__title" href="#">GTA 6: Vice City Returns</a></div>
-        <div class="popular-item"><span class="popular-item__num">4</span><a class="popular-item__title" href="#">Nintendo Direct: Biggest Announcements</a></div>
-        <div class="popular-item"><span class="popular-item__num">5</span><a class="popular-item__title" href="#">The Witcher 4: First Details</a></div>
-      </div>
-    </div>
+// ═══ FILE: src/app/game/[slug]/page.tsx ═══
+import Image from 'next/image';
+import { notFound } from 'next/navigation';
+import type { Metadata } from 'next';
+import { getGameDetails, getGameScreenshots } from '@/lib/api';
 
-    <div class="widget" id="Label1">
-      <div class="widget-title">🏷️ Platforms &amp; Tags</div>
-      <div class="tag-cloud">
-        <a href="/pc">PC</a>
-        <a href="/playstation">PlayStation</a>
-        <a href="/xbox">Xbox</a>
-        <a href="/nintendo">Nintendo</a>
-        <a href="/news">News</a>
-        <a href="/reviews">Reviews</a>
-        <a href="/action">Action</a>
-        <a href="/rpg">RPG</a>
-        <a href="/strategy">Strategy</a>
-        <a href="/esports">eSports</a>
-      </div>
-    </div>
+type Props = { params: { slug: string } };
 
-    <div class="widget" id="BlogArchive1">
-      <div class="widget-title">📅 Archive</div>
-      <ul class="flat">
-        <li class="archivedate"><a href="#">March 2024 <span class="post-count">(12)</span></a></li>
-        <li class="archivedate"><a href="#">February 2024 <span class="post-count">(8)</span></a></li>
-        <li class="archivedate"><a href="#">January 2024 <span class="post-count">(15)</span></a></li>
-        <li class="archivedate"><a href="#">December 2023 <span class="post-count">(10)</span></a></li>
-      </ul>
-    </div>
+/** Dynamic SEO metadata per game. */
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const game = await getGameDetails(params.slug);
+  return { title: game?.name ?? 'Game Not Found', description: game?.description.slice(0, 160) };
+}
 
-    <div class="widget" id="Profile1">
-      <div class="widget-title">👾 About GameHub</div>
-      <div class="widget-content individual">
-        <div class="profile-info">
-          <dl class="profile-datablock">
-            <dt class="profile-data"><a class="profile-link g-profile" href="#" rel="author nofollow">GameHub Team</a></dt>
-            <dd class="profile-textblock">Your source for the latest gaming news, reviews, and eSports coverage. Stay informed, stay connected.</dd>
-          </dl>
-          <a class="profile-link" href="#" rel="author nofollow">View My Complete Profile</a>
+function scoreColor(score: number | null) {
+  if (score === null) return 'bg-zinc-600';
+  if (score >= 75) return 'bg-green-600';
+  if (score >= 50) return 'bg-yellow-600';
+  return 'bg-red-600';
+}
+
+export default async function GamePage({ params }: Props) {
+  const [game, screenshots] = await Promise.all([
+    getGameDetails(params.slug),
+    getGameScreenshots(params.slug),
+  ]);
+  if (!game) notFound();
+
+  return (
+    <article className="space-y-10">
+      {/* Cinematic banner */}
+      <div className="relative -mx-4 -mt-8 sm:-mx-6 lg:-mx-8">
+        <div className="relative aspect-[16/6] w-full overflow-hidden">
+          <Image src={game.backgroundImage} alt={game.name} fill priority sizes="100vw" className="object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/50 to-transparent" />
         </div>
-      </div>
-    </div>
-  </section>
-
-  <footer class="site-footer" role="contentinfo">
-    <div class="container">
-      <div class="footer-top">
-        <div class="footer-brand">
-          <a class="footer-logo" href="/">GAME<span style="color:var(--neon-pink)">HUB</span></a>
-          <p>Your source for the latest gaming news, reviews, and eSports coverage. Stay informed, stay connected.</p>
-          <div class="footer-social">
-            <a aria-label="Twitter" href="#" rel="noopener noreferrer" target="_blank">
-              <svg viewBox="0 0 24 24"><path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z"/></svg>
-            </a>
-            <a aria-label="YouTube" href="#" rel="noopener noreferrer" target="_blank">
-              <svg viewBox="0 0 24 24"><path d="M22.54 6.42a2.78 2.78 0 00-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46A2.78 2.78 0 001.46 6.42 29 29 0 001 12a29 29 0 00.46 5.58 2.78 2.78 0 001.95 1.96C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 001.95-1.96A29 29 0 0023 12a29 29 0 00-.46-5.58z"/><polygon points="9.75,15.02 15.5,12 9.75,8.98 9.75,15.02"/></svg>
-            </a>
-            <a aria-label="Discord" href="#" rel="noopener noreferrer" target="_blank">
-              <svg viewBox="0 0 24 24"><path d="M20.32 4.37a19.79 19.79 0 00-4.93-1.53.2.2 0 00-.19.07 13.85 13.85 0 00-.9 1.86 18.43 18.43 0 00-5.4 0 13.85 13.85 0 00-.9-1.86.2.2 0 00-.19-.07 19.79 19.79 0 00-4.93 1.53.2.2 0 00-.08.07A20.48 20.48 0 001.5 17.56a.2.2 0 00.08.15 20.07 20.07 0 005.95 3.01.2.2 0 00.2-.07 14.43 14.43 0 001.2-1.94.2.2 0 00-.11-.28 13.16 13.16 0 01-1.82-.86.2.2 0 01-.07-.29l.37-.5a.2.2 0 01.25-.06 14.22 14.22 0 006.02 0 .2.2 0 01.25.06l.37.5a.2.2 0 01-.07.29 13.16 13.16 0 01-1.82.86.2.2 0 00-.11.28c.33.71.74 1.37 1.2 1.94a.2.2 0 00.2.07 20.07 20.07 0 005.95-3.01.2.2 0 00.08-.15 20.48 20.48 0 00-1.7-13.12.2.2 0 00-.08-.07zM8.08 14.57a2.07 2.07 0 010-4.14 2.07 2.07 0 010 4.14zm7.84 0a2.07 2.07 0 010-4.14 2.07 2.07 0 010 4.14z"/></svg>
-            </a>
+        <div className="absolute bottom-0 flex w-full items-end justify-between gap-4 px-4 pb-6 sm:px-6 lg:px-8">
+          <div>
+            <h1 className="text-3xl font-extrabold sm:text-5xl">{game.name}</h1>
+            <p className="mt-2 text-sm text-zinc-300">{game.released} · {game.genres.join(', ')}</p>
           </div>
-        </div>
-        <div class="footer-col">
-          <h4>Categories</h4>
-          <ul>
-            <li><a href="/news">News</a></li>
-            <li><a href="/reviews">Reviews</a></li>
-            <li><a href="/pc">PC</a></li>
-            <li><a href="/playstation">PlayStation</a></li>
-            <li><a href="/xbox">Xbox</a></li>
-            <li><a href="/nintendo">Nintendo</a></li>
-          </ul>
-        </div>
-        <div class="footer-col">
-          <h4>Company</h4>
-          <ul>
-            <li><a href="/about.html">About</a></li>
-            <li><a href="/contact.html">Contact</a></li>
-            <li><a href="/advertise.html">Advertise</a></li>
-            <li><a href="/feeds/posts/default" rel="alternate" type="application/rss+xml">RSS Feed</a></li>
-          </ul>
-        </div>
-        <div class="footer-col">
-          <h4>Legal</h4>
-          <ul>
-            <li><a href="/privacy-policy.html">Privacy Policy</a></li>
-            <li><a href="/terms.html">Terms of Use</a></li>
-            <li><a href="/disclaimer.html">Disclaimer</a></li>
-            <li><a href="/cookie-policy.html">Cookie Policy</a></li>
-          </ul>
+          {game.metacritic !== null && (
+            <div className={`shrink-0 rounded-xl px-4 py-3 text-center ${scoreColor(game.metacritic)}`}>
+              <span className="block text-3xl font-extrabold">{game.metacritic}</span>
+              <span className="text-xs font-semibold uppercase tracking-wider">Score</span>
+            </div>
+          )}
         </div>
       </div>
-      <div class="footer-bottom">
-        <span>© <span id="footerYear"></span> GameHub. All rights reserved.</span>
-        <span>Powered by <a href="/">GameHub</a></span>
+
+      {/* Content + sidebar */}
+      <div className="grid grid-cols-1 gap-10 lg:grid-cols-3">
+        <div className="space-y-8 lg:col-span-2">
+          <section>
+            <h2 className="mb-3 border-l-4 border-cyan-400 pl-3 text-xl font-bold">About</h2>
+            <p className="leading-relaxed text-zinc-300">{game.description}</p>
+          </section>
+          <section>
+            <h2 className="mb-4 border-l-4 border-pink-500 pl-3 text-xl font-bold">Screenshots</h2>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              {screenshots.map((s) => (
+                <div key={s.id} className="relative aspect-video overflow-hidden rounded-lg border border-zinc-800 transition-transform hover:scale-[1.02]">
+                  <Image src={s.imageUrl} alt={`${game.name} screenshot`} fill sizes="(max-width: 640px) 100vw, 50vw" className="object-cover" />
+                </div>
+              ))}
+            </div>
+          </section>
+        </div>
+
+        <aside className="h-fit space-y-4 rounded-xl border border-zinc-800 bg-zinc-900 p-5">
+          <h2 className="text-lg font-bold">Game Info</h2>
+          <dl className="space-y-3 text-sm">
+            {[
+              ['Release Date', game.released],
+              ['Platforms', game.platforms.join(', ') || '—'],
+              ['Developer', game.developers.join(', ') || '—'],
+              ['Publisher', game.publishers.join(', ') || '—'],
+              ['Avg. Playtime', game.playtime ? `${game.playtime} hours` : '—'],
+              ['User Rating', `${game.rating.toFixed(1)} / 5`],
+            ].map(([label, value]) => (
+              <div key={label} className="flex justify-between gap-4 border-b border-zinc-800 pb-2">
+                <dt className="text-zinc-400">{label}</dt>
+                <dd className="text-right font-medium">{value}</dd>
+              </div>
+            ))}
+          </dl>
+          {game.website && (
+            <a href={game.website} target="_blank" rel="noopener noreferrer"
+               className="block rounded-lg bg-cyan-500 py-2.5 text-center font-bold text-zinc-950 transition-colors hover:bg-cyan-400">
+              Official Website
+            </a>
+          )}
+        </aside>
       </div>
-    </div>
-  </footer>
-
-  <button aria-label="Back to top" class="back-to-top" id="backToTop">
-    <svg viewBox="0 0 24 24"><polyline points="18,15 12,9 6,15"/></svg>
-  </button>
-
-  <script>
-    (function() {
-      'use strict';
-
-      function startCountdown() {
-        const targetDate = new Date('2025-12-31T00:00:00').getTime();
-        const daysEl = document.getElementById('days');
-        const hoursEl = document.getElementById('hours');
-        const minutesEl = document.getElementById('minutes');
-        const secondsEl = document.getElementById('seconds');
-        if (!daysEl) return;
-        function updateTimer() {
-          const now = new Date().getTime();
-          const distance = targetDate - now;
-          if (distance > 0) {
-            daysEl.textContent = String(Math.floor(distance / (1000*60*60*24))).padStart(2,'0');
-            hoursEl.textContent = String(Math.floor((distance % (1000*60*60*24)) / (1000*60*60))).padStart(2,'0');
-            minutesEl.textContent = String(Math.floor((distance % (1000*60*60)) / (1000*60))).padStart(2,'0');
-            secondsEl.textContent = String(Math.floor((distance % (1000*60)) / 1000)).padStart(2,'0');
-          }
-        }
-        updateTimer();
-        setInterval(updateTimer, 1000);
-      }
-
-      var dmToggle = document.getElementById('darkModeToggle');
-      var iconSun = document.getElementById('iconSun');
-      var iconMoon = document.getElementById('iconMoon');
-      var html = document.documentElement;
-
-      function setTheme(dark) {
-        html.setAttribute('data-theme', dark ? 'dark' : 'light');
-        localStorage.setItem('gamehubTheme', dark ? 'dark' : 'light');
-        if (iconSun && iconMoon) {
-          iconSun.style.display = dark ? 'none' : 'block';
-          iconMoon.style.display = dark ? 'block' : 'none';
-        }
-      }
-      setTheme(true);
-
-      var header = document.getElementById('siteHeader');
-      window.addEventListener('scroll', function() {
-        if (header) header.classList.toggle('scrolled', window.scrollY > 60);
-      }, { passive: true });
-
-      var btt = document.getElementById('backToTop');
-      window.addEventListener('scroll', function() {
-        if (btt) btt.classList.toggle('visible', window.scrollY > 400);
-      }, { passive: true });
-      if (btt) {
-        btt.addEventListener('click', function() { window.scrollTo({ top: 0, behavior: 'smooth' }); });
-      }
-
-      var searchToggle = document.getElementById('searchToggle');
-      var searchOverlay = document.getElementById('searchOverlay');
-      var searchClose = document.getElementById('searchClose');
-      var searchInput = document.getElementById('searchInput');
-
-      function openSearch() {
-        if (searchOverlay) {
-          searchOverlay.classList.add('active');
-          if (searchInput) setTimeout(function() { searchInput.focus(); }, 100);
-          searchOverlay.setAttribute('aria-hidden', 'false');
-        }
-      }
-      function closeSearch() {
-        if (searchOverlay) {
-          searchOverlay.classList.remove('active');
-          searchOverlay.setAttribute('aria-hidden', 'true');
-        }
-      }
-      if (searchToggle) searchToggle.addEventListener('click', openSearch);
-      if (searchClose) searchClose.addEventListener('click', closeSearch);
-      document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') closeSearch();
-      });
-
-      var navToggle = document.getElementById('navToggle');
-      var mobileNav = document.getElementById('mobileNav');
-      var mobileNavOverlay = document.getElementById('mobileNavOverlay');
-      var mobileNavClose = document.getElementById('mobileNavClose');
-
-      function openMobileNav() {
-        if (mobileNav) mobileNav.classList.add('open');
-        if (mobileNavOverlay) mobileNavOverlay.classList.add('open');
-        if (navToggle) navToggle.setAttribute('aria-expanded', 'true');
-        document.body.style.overflow = 'hidden';
-      }
-      function closeMobileNav() {
-        if (mobileNav) mobileNav.classList.remove('open');
-        if (mobileNavOverlay) mobileNavOverlay.classList.remove('open');
-        if (navToggle) navToggle.setAttribute('aria-expanded', 'false');
-        document.body.style.overflow = '';
-      }
-      if (navToggle) navToggle.addEventListener('click', openMobileNav);
-      if (mobileNavClose) mobileNavClose.addEventListener('click', closeMobileNav);
-      if (mobileNavOverlay) mobileNavOverlay.addEventListener('click', closeMobileNav);
-
-      var dateEl = document.getElementById('topbarDate');
-      if (dateEl) {
-        var now = new Date();
-        var opts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-        dateEl.textContent = now.toLocaleDateString('en-US', opts);
-      }
-
-      var yearEl = document.getElementById('footerYear');
-      if (yearEl) yearEl.textContent = new Date().getFullYear();
-
-      if ('IntersectionObserver' in window) {
-        var imgs = document.querySelectorAll('img[loading="lazy"]');
-        var io = new IntersectionObserver(function(entries) {
-          entries.forEach(function(entry) {
-            if (entry.isIntersecting) { io.unobserve(entry.target); }
-          });
-        }, { rootMargin: '200px' });
-        imgs.forEach(function(img) { io.observe(img); });
-      }
-
-      if ('IntersectionObserver' in window) {
-        var animEls = document.querySelectorAll('.card, .section-head, .animate-in');
-        var aio = new IntersectionObserver(function(entries) {
-          entries.forEach(function(entry) {
-            if (entry.isIntersecting) {
-              entry.target.classList.add('animate-in');
-              aio.unobserve(entry.target);
-            }
-          });
-        }, { threshold: 0.1 });
-        animEls.forEach(function(el) { aio.observe(el); });
-      }
-
-      startCountdown();
-    })();
-  </script>
-</body>
-</html>
+    </article>
+  );
+}
