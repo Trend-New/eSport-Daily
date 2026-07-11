@@ -1,9 +1,6 @@
 // ════════════════════════════════════════════════════════════════════
 // PIXELPULSE — GameSpot-style Gaming News & Database Site
 // Next.js 14+ (App Router) + TypeScript + Tailwind CSS
-// Setup: npx create-next-app@latest gaming-news-site --typescript --tailwind --app
-// Then split this block into the files indicated by each FILE marker.
-// Optional: add RAWG_API_KEY=xxx to .env.local (renders with placeholders without it)
 // ════════════════════════════════════════════════════════════════════
 
 // ═══ FILE: next.config.mjs ═══
@@ -18,27 +15,26 @@ const nextConfig = {
 };
 export default nextConfig;
 
+
 // ═══ FILE: src/types/index.ts ═══
-/** A game entry, normalized from the RAWG API shape. */
 export interface Game {
   id: number;
   slug: string;
   name: string;
   released: string;
   backgroundImage: string;
-  rating: number;            // 0–5 aggregate
+  rating: number;
   metacritic: number | null;
   platforms: string[];
   genres: string[];
 }
 
-/** Extended game data for the profile page. */
 export interface GameDetails extends Game {
   description: string;
   developers: string[];
   publishers: string[];
   website: string | null;
-  playtime: number; // average hours
+  playtime: number;
 }
 
 export interface Screenshot {
@@ -46,7 +42,6 @@ export interface Screenshot {
   imageUrl: string;
 }
 
-/** A news article (editorial content, CMS-ready). */
 export interface Article {
   id: number;
   slug: string;
@@ -58,6 +53,7 @@ export interface Article {
   publishedAt: string;
   isBreaking?: boolean;
 }
+
 
 // ═══ FILE: src/lib/mock-data.ts ═══
 import { Article, Game, GameDetails, Screenshot } from '@/types';
@@ -118,18 +114,14 @@ export const mockArticles: Article[] = [
 
 export const mockGameDetails: GameDetails = {
   ...mockGames[0],
-  description:
-    'Starfall Odyssey is a sprawling open-world RPG set across a dying star system. Forge alliances, command a crew, and shape the fate of the galaxy through meaningful choices.',
-  developers: ['Nova Forge Studios'],
-  publishers: ['Apex Interactive'],
-  website: null,
-  playtime: 62,
+  description: 'Starfall Odyssey is a sprawling open-world RPG set across a dying star system. Forge alliances, command a crew, and shape the fate of the galaxy through meaningful choices.',
+  developers: ['Nova Forge Studios'], publishers: ['Apex Interactive'], website: null, playtime: 62,
 };
 
 export const mockScreenshots: Screenshot[] = [1, 2, 3, 4].map((i) => ({
-  id: i,
-  imageUrl: `https://placehold.co/1280x720/0f0f13/22d3ee?text=Screenshot+${i}`,
+  id: i, imageUrl: `https://placehold.co/1280x720/0f0f13/22d3ee?text=Screenshot+${i}`,
 }));
+
 
 // ═══ FILE: src/lib/api.ts ═══
 import { Game, GameDetails, Screenshot } from '@/types';
@@ -138,15 +130,13 @@ import { mockGames, mockGameDetails, mockScreenshots } from './mock-data';
 const BASE_URL = 'https://api.rawg.io/api';
 const API_KEY = process.env.RAWG_API_KEY;
 
-/** Normalize a raw RAWG game object into our Game type. */
 function normalizeGame(raw: any): Game {
   return {
     id: raw.id,
     slug: raw.slug,
     name: raw.name,
     released: raw.released ?? 'TBA',
-    backgroundImage:
-      raw.background_image ?? 'https://placehold.co/640x360/0f0f13/22d3ee?text=No+Image',
+    backgroundImage: raw.background_image ?? 'https://placehold.co/640x360/0f0f13/22d3ee?text=No+Image',
     rating: raw.rating ?? 0,
     metacritic: raw.metacritic ?? null,
     platforms: raw.parent_platforms?.map((p: any) => p.platform.name) ?? [],
@@ -154,7 +144,6 @@ function normalizeGame(raw: any): Game {
   };
 }
 
-/** Generic fetcher with ISR caching; falls back to mock data without a key. */
 async function fetchGames(params: string, revalidate = 3600): Promise<Game[]> {
   if (!API_KEY) return mockGames;
   const res = await fetch(`${BASE_URL}/games?key=${API_KEY}&${params}`, { next: { revalidate } });
@@ -163,31 +152,25 @@ async function fetchGames(params: string, revalidate = 3600): Promise<Game[]> {
   return data.results.map(normalizeGame);
 }
 
-/** Recently released titles (last 30 days). */
 export function getRecentReleases() {
   const to = new Date().toISOString().split('T')[0];
   const from = new Date(Date.now() - 30 * 864e5).toISOString().split('T')[0];
   return fetchGames(`dates=${from},${to}&ordering=-added&page_size=8`);
 }
 
-/** Most hyped / trending games. */
 export function getTrendingGames() {
   return fetchGames('ordering=-added&page_size=8');
 }
 
-/** Upcoming releases (next 6 months). */
 export function getUpcomingGames() {
   const from = new Date().toISOString().split('T')[0];
   const to = new Date(Date.now() + 182 * 864e5).toISOString().split('T')[0];
   return fetchGames(`dates=${from},${to}&ordering=-added&page_size=12`);
 }
 
-/** Full details for a single game. */
 export async function getGameDetails(slug: string): Promise<GameDetails | null> {
   if (!API_KEY) return mockGameDetails;
-  const res = await fetch(`${BASE_URL}/games/${slug}?key=${API_KEY}`, {
-    next: { revalidate: 86400 },
-  });
+  const res = await fetch(`${BASE_URL}/games/${slug}?key=${API_KEY}`, { next: { revalidate: 86400 } });
   if (!res.ok) return null;
   const raw = await res.json();
   return {
@@ -200,19 +183,16 @@ export async function getGameDetails(slug: string): Promise<GameDetails | null> 
   };
 }
 
-/** Screenshot gallery for a game. */
 export async function getGameScreenshots(slug: string): Promise<Screenshot[]> {
   if (!API_KEY) return mockScreenshots;
-  const res = await fetch(`${BASE_URL}/games/${slug}/screenshots?key=${API_KEY}`, {
-    next: { revalidate: 86400 },
-  });
+  const res = await fetch(`${BASE_URL}/games/${slug}/screenshots?key=${API_KEY}`, { next: { revalidate: 86400 } });
   if (!res.ok) return [];
   const data = await res.json();
   return data.results.map((s: any) => ({ id: s.id, imageUrl: s.image }));
 }
 
+
 // ═══ FILE: src/app/globals.css ═══
-/*
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -221,9 +201,8 @@ export async function getGameScreenshots(slug: string): Promise<Screenshot[]> {
 ::-webkit-scrollbar-track { background: #09090b; }
 ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 5px; }
 ::-webkit-scrollbar-thumb:hover { background: #22d3ee; }
-
 html { scroll-behavior: smooth; }
-*/
+
 
 // ═══ FILE: src/components/layout/Navbar.tsx ═══
 'use client';
@@ -244,7 +223,6 @@ export default function Navbar() {
   const [query, setQuery] = useState('');
   const router = useRouter();
 
-  /** Route search queries to the database page with a ?q param. */
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (query.trim()) router.push(`/database?q=${encodeURIComponent(query.trim())}`);
@@ -273,12 +251,12 @@ export default function Navbar() {
             className="w-48 rounded-full border border-zinc-700 bg-zinc-900 px-4 py-1.5 text-sm outline-none transition-all focus:w-64 focus:border-cyan-400"
           />
         </form>
-        <button onClick={() => setOpen(!open)} aria-label="Toggle menu" className="ml-auto rounded-md p-2 hover:bg-zinc-800 md:hidden">
-          <span aria-hidden>☰</span>
+        <button onClick={() => setOpen(!open)} aria-label="Toggle menu" className="ml-auto rounded-md p-2 hover:bg-zinc-800 md:hidden text-white">
+          ☰
         </button>
       </nav>
       {open && (
-        <ul className="space-y-1 border-t border-zinc-800 px-4 py-3 md:hidden">
+        <ul className="space-y-1 border-t border-zinc-800 px-4 py-3 md:hidden bg-zinc-950">
           {NAV_LINKS.map((l) => (
             <li key={l.href}>
               <Link href={l.href} onClick={() => setOpen(false)} className="block rounded-md px-3 py-2 text-zinc-300 hover:bg-zinc-800 hover:text-white">
@@ -291,6 +269,7 @@ export default function Navbar() {
     </header>
   );
 }
+
 
 // ═══ FILE: src/components/layout/Footer.tsx ═══
 import Link from 'next/link';
@@ -326,12 +305,12 @@ export default function Footer() {
   );
 }
 
+
 // ═══ FILE: src/components/home/HeroSection.tsx ═══
 import Image from 'next/image';
 import Link from 'next/link';
 import { Article } from '@/types';
 
-/** Full-width breaking-news hero with gradient overlay. */
 export default function HeroSection({ article }: { article: Article }) {
   return (
     <Link href={`/news/${article.slug}`} className="group relative block overflow-hidden rounded-2xl">
@@ -346,13 +325,13 @@ export default function HeroSection({ article }: { article: Article }) {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/40 to-transparent" />
       </div>
-      <div className="absolute bottom-0 p-6 sm:p-10">
+      <div className="absolute bottom-0 p-6 sm:p-10 z-10">
         {article.isBreaking && (
-          <span className="mb-3 inline-block rounded bg-red-600 px-2.5 py-1 text-xs font-bold uppercase tracking-wider">
+          <span className="mb-3 inline-block rounded bg-red-600 px-2.5 py-1 text-xs font-bold uppercase tracking-wider text-white">
             Breaking
           </span>
         )}
-        <h1 className="max-w-3xl text-2xl font-extrabold leading-tight transition-colors group-hover:text-cyan-300 sm:text-4xl">
+        <h1 className="max-w-3xl text-2xl font-extrabold leading-tight text-white transition-colors group-hover:text-cyan-300 sm:text-4xl">
           {article.title}
         </h1>
         <p className="mt-2 hidden max-w-2xl text-zinc-300 sm:block">{article.excerpt}</p>
@@ -362,21 +341,22 @@ export default function HeroSection({ article }: { article: Article }) {
   );
 }
 
+
 // ═══ FILE: src/components/news/NewsCard.tsx ═══
 import Image from 'next/image';
 import Link from 'next/link';
 import { Article } from '@/types';
 
 const CATEGORY_COLORS: Record<Article['category'], string> = {
-  News: 'bg-cyan-500', Review: 'bg-violet-500', Exclusive: 'bg-red-500', Feature: 'bg-amber-500',
+  News: 'bg-cyan-500 text-zinc-950', 
+  Review: 'bg-violet-500 text-white', 
+  Exclusive: 'bg-red-500 text-white', 
+  Feature: 'bg-amber-500 text-zinc-950',
 };
 
 export default function NewsCard({ article }: { article: Article }) {
   return (
-    <Link
-      href={`/news/${article.slug}`}
-      className="group overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900 transition-all hover:-translate-y-1 hover:border-cyan-400/50 hover:shadow-lg hover:shadow-cyan-500/10"
-    >
+    <Link href={`/news/${article.slug}`} className="group overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900 transition-all hover:-translate-y-1 hover:border-cyan-400/50 hover:shadow-lg hover:shadow-cyan-500/10">
       <div className="relative aspect-video">
         <Image src={article.imageUrl} alt={article.title} fill sizes="(max-width: 640px) 100vw, 33vw" className="object-cover" />
         <span className={`absolute left-3 top-3 rounded px-2 py-0.5 text-xs font-bold uppercase ${CATEGORY_COLORS[article.category]}`}>
@@ -384,7 +364,7 @@ export default function NewsCard({ article }: { article: Article }) {
         </span>
       </div>
       <div className="p-4">
-        <h3 className="line-clamp-2 font-bold leading-snug transition-colors group-hover:text-cyan-300">{article.title}</h3>
+        <h3 className="line-clamp-2 font-bold leading-snug text-white transition-colors group-hover:text-cyan-300">{article.title}</h3>
         <p className="mt-2 line-clamp-2 text-sm text-zinc-400">{article.excerpt}</p>
         <p className="mt-3 text-xs text-zinc-500">{article.author} · {article.publishedAt}</p>
       </div>
@@ -392,11 +372,11 @@ export default function NewsCard({ article }: { article: Article }) {
   );
 }
 
+
 // ═══ FILE: src/components/news/NewsGrid.tsx ═══
 import { Article } from '@/types';
 import NewsCard from './NewsCard';
 
-/** Responsive editorial grid. */
 export default function NewsGrid({ articles }: { articles: Article[] }) {
   return (
     <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -405,12 +385,12 @@ export default function NewsGrid({ articles }: { articles: Article[] }) {
   );
 }
 
+
 // ═══ FILE: src/components/games/GameCard.tsx ═══
 import Image from 'next/image';
 import Link from 'next/link';
 import { Game } from '@/types';
 
-/** Color-code the score badge like Metacritic (green/yellow/red). */
 function scoreColor(score: number | null) {
   if (score === null) return 'bg-zinc-600';
   if (score >= 75) return 'bg-green-600';
@@ -420,20 +400,17 @@ function scoreColor(score: number | null) {
 
 export default function GameCard({ game }: { game: Game }) {
   return (
-    <Link
-      href={`/game/${game.slug}`}
-      className="group overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900 transition-all hover:-translate-y-1 hover:border-pink-500/50 hover:shadow-lg hover:shadow-pink-500/10"
-    >
+    <Link href={`/game/${game.slug}`} className="group overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900 transition-all hover:-translate-y-1 hover:border-pink-500/50 hover:shadow-lg hover:shadow-pink-500/10">
       <div className="relative aspect-video">
         <Image src={game.backgroundImage} alt={game.name} fill sizes="(max-width: 640px) 100vw, 25vw" className="object-cover transition-transform duration-300 group-hover:scale-105" />
         {game.metacritic !== null && (
-          <span className={`absolute right-3 top-3 rounded px-2 py-1 text-xs font-bold ${scoreColor(game.metacritic)}`}>
+          <span className={`absolute right-3 top-3 rounded px-2 py-1 text-xs font-bold text-white ${scoreColor(game.metacritic)}`}>
             {game.metacritic}
           </span>
         )}
       </div>
       <div className="p-4">
-        <h3 className="line-clamp-1 font-bold transition-colors group-hover:text-pink-400">{game.name}</h3>
+        <h3 className="line-clamp-1 font-bold text-white transition-colors group-hover:text-pink-400">{game.name}</h3>
         <p className="mt-1 text-xs text-zinc-400">{game.released} · {game.platforms.slice(0, 3).join(', ')}</p>
         <div className="mt-2 flex flex-wrap gap-1.5">
           {game.genres.slice(0, 2).map((g) => (
@@ -445,8 +422,9 @@ export default function GameCard({ game }: { game: Game }) {
   );
 }
 
+
 // ═══ FILE: src/app/layout.tsx ═══
-import type { Metadata } from 'next';
+import type { Metadata } from 'react';
 import { Inter } from 'next/font/google';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
@@ -473,6 +451,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   );
 }
 
+
 // ═══ FILE: src/app/page.tsx ═══
 import HeroSection from '@/components/home/HeroSection';
 import NewsGrid from '@/components/news/NewsGrid';
@@ -481,25 +460,24 @@ import { getRecentReleases, getTrendingGames } from '@/lib/api';
 import { mockArticles } from '@/lib/mock-data';
 
 export default async function HomePage() {
-  // Parallel data fetching for performance
   const [recent, trending] = await Promise.all([getRecentReleases(), getTrendingGames()]);
-  const [heroArticle, ...articles] = mockArticles; // swap for CMS fetch later
+  const [heroArticle, ...articles] = mockArticles;
 
   return (
     <div className="space-y-14">
       <HeroSection article={heroArticle} />
       <section>
-        <h2 className="mb-5 border-l-4 border-cyan-400 pl-3 text-2xl font-bold">Latest News</h2>
+        <h2 className="mb-5 border-l-4 border-cyan-400 pl-3 text-2xl font-bold text-white">Latest News</h2>
         <NewsGrid articles={articles} />
       </section>
       <section>
-        <h2 className="mb-5 border-l-4 border-pink-500 pl-3 text-2xl font-bold">Trending Now</h2>
+        <h2 className="mb-5 border-l-4 border-pink-500 pl-3 text-2xl font-bold text-white">Trending Now</h2>
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {trending.map((g) => <GameCard key={g.id} game={g} />)}
         </div>
       </section>
       <section>
-        <h2 className="mb-5 border-l-4 border-violet-500 pl-3 text-2xl font-bold">Recent Releases</h2>
+        <h2 className="mb-5 border-l-4 border-violet-500 pl-3 text-2xl font-bold text-white">Recent Releases</h2>
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {recent.map((g) => <GameCard key={g.id} game={g} />)}
         </div>
@@ -507,6 +485,7 @@ export default async function HomePage() {
     </div>
   );
 }
+
 
 // ═══ FILE: src/app/game/[slug]/page.tsx ═══
 import Image from 'next/image';
@@ -516,7 +495,6 @@ import { getGameDetails, getGameScreenshots } from '@/lib/api';
 
 type Props = { params: { slug: string } };
 
-/** Dynamic SEO metadata per game. */
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const game = await getGameDetails(params.slug);
   return { title: game?.name ?? 'Game Not Found', description: game?.description.slice(0, 160) };
@@ -534,23 +512,23 @@ export default async function GamePage({ params }: Props) {
     getGameDetails(params.slug),
     getGameScreenshots(params.slug),
   ]);
+  
   if (!game) notFound();
 
   return (
     <article className="space-y-10">
-      {/* Cinematic banner */}
       <div className="relative -mx-4 -mt-8 sm:-mx-6 lg:-mx-8">
         <div className="relative aspect-[16/6] w-full overflow-hidden">
           <Image src={game.backgroundImage} alt={game.name} fill priority sizes="100vw" className="object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/50 to-transparent" />
         </div>
-        <div className="absolute bottom-0 flex w-full items-end justify-between gap-4 px-4 pb-6 sm:px-6 lg:px-8">
+        <div className="absolute bottom-0 flex w-full items-end justify-between gap-4 px-4 pb-6 sm:px-6 lg:px-8 z-10">
           <div>
-            <h1 className="text-3xl font-extrabold sm:text-5xl">{game.name}</h1>
+            <h1 className="text-3xl font-extrabold text-white sm:text-5xl">{game.name}</h1>
             <p className="mt-2 text-sm text-zinc-300">{game.released} · {game.genres.join(', ')}</p>
           </div>
           {game.metacritic !== null && (
-            <div className={`shrink-0 rounded-xl px-4 py-3 text-center ${scoreColor(game.metacritic)}`}>
+            <div className={`shrink-0 rounded-xl px-4 py-3 text-center text-white ${scoreColor(game.metacritic)}`}>
               <span className="block text-3xl font-extrabold">{game.metacritic}</span>
               <span className="text-xs font-semibold uppercase tracking-wider">Score</span>
             </div>
@@ -558,15 +536,14 @@ export default async function GamePage({ params }: Props) {
         </div>
       </div>
 
-      {/* Content + sidebar */}
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-3">
         <div className="space-y-8 lg:col-span-2">
           <section>
-            <h2 className="mb-3 border-l-4 border-cyan-400 pl-3 text-xl font-bold">About</h2>
+            <h2 className="mb-3 border-l-4 border-cyan-400 pl-3 text-xl font-bold text-white">About</h2>
             <p className="leading-relaxed text-zinc-300">{game.description}</p>
           </section>
           <section>
-            <h2 className="mb-4 border-l-4 border-pink-500 pl-3 text-xl font-bold">Screenshots</h2>
+            <h2 className="mb-4 border-l-4 border-pink-500 pl-3 text-xl font-bold text-white">Screenshots</h2>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               {screenshots.map((s) => (
                 <div key={s.id} className="relative aspect-video overflow-hidden rounded-lg border border-zinc-800 transition-transform hover:scale-[1.02]">
@@ -578,7 +555,7 @@ export default async function GamePage({ params }: Props) {
         </div>
 
         <aside className="h-fit space-y-4 rounded-xl border border-zinc-800 bg-zinc-900 p-5">
-          <h2 className="text-lg font-bold">Game Info</h2>
+          <h2 className="text-lg font-bold text-white">Game Info</h2>
           <dl className="space-y-3 text-sm">
             {[
               ['Release Date', game.released],
@@ -590,7 +567,7 @@ export default async function GamePage({ params }: Props) {
             ].map(([label, value]) => (
               <div key={label} className="flex justify-between gap-4 border-b border-zinc-800 pb-2">
                 <dt className="text-zinc-400">{label}</dt>
-                <dd className="text-right font-medium">{value}</dd>
+                <dd className="text-right font-medium text-white">{value}</dd>
               </div>
             ))}
           </dl>
